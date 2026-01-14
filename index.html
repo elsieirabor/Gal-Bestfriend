@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#FDF8F3">
+    <meta name="description" content="Your warm, honest relationship companion. Navigate friendships and relationships with support, not judgment.">
+    <title>Gal Bestfriend | Your Relationship Companion</title>
+
+    <!-- PWA / Mobile App Feel -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236D4548' width='100' height='100' rx='20'/><text y='.9em' x='50%' text-anchor='middle' font-size='70'>♡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <!-- Landing Screen -->
+    <section id="landing" class="screen active">
+        <nav class="landing-nav">
+            <div class="logo">
+                <span class="logo-icon">♡</span>
+                <span class="logo-text">Gal Bestfriend</span>
+            </div>
+            <button class="nav-cta" onclick="showScreen('onboarding')">Get Started</button>
+        </nav>
+
+        <main class="landing-hero">
+            <div class="hero-content">
+                <p class="hero-eyebrow">Your relationship companion</p>
+                <h1 class="hero-title">
+                    Like having a<br>
+                    <span class="title-accent">wise big sister</span><br>
+                    in your pocket
+                </h1>
+                <p class="hero-description">
+                    Navigate friendships and relationships with warmth,
+                    honesty, and zero judgment. Get real advice tailored
+                    to how you need to hear it.
+                </p>
+                <div class="hero-cta-group">
+                    <button class="btn-primary" onclick="showScreen('onboarding')">
+                        Start a Conversation
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <p class="cta-note">Free · Private · No sign-up required</p>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="chat-preview">
+                    <div class="preview-message user-preview">
+                        <p>My best friend hasn't texted me back in 3 days and I don't know if I should reach out again...</p>
+                    </div>
+                    <div class="preview-message ai-preview">
+                        <p>I hear you — that silence can feel so loud. Before we figure out next steps, tell me: how are you feeling right now? Worried? Hurt? Or maybe a little of both?</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="trust-signals">
+            <div class="trust-item">
+                <span class="trust-icon">🔒</span>
+                <span>Private & secure</span>
+            </div>
+            <div class="trust-item">
+                <span class="trust-icon">💜</span>
+                <span>Non-judgmental space</span>
+            </div>
+            <div class="trust-item">
+                <span class="trust-icon">✨</span>
+                <span>Personalized to you</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Onboarding Screen -->
+    <section id="onboarding" class="screen">
+        <button class="back-btn" onclick="showScreen('landing')">← Back</button>
+
+        <div class="onboarding-container">
+            <div class="onboarding-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-text" id="progressText">Step 1 of 3</span>
+            </div>
+
+            <!-- Step 1: Name -->
+            <div class="onboarding-step active" data-step="1">
+                <h2 class="step-title">First, what should I call you?</h2>
+                <p class="step-subtitle">I want this to feel personal, like we're actually friends.</p>
+                <div class="input-group">
+                    <input type="text" id="userName" class="text-input" placeholder="Your name or nickname..." maxlength="30">
+                    <p class="input-hint">This stays between us — your privacy matters.</p>
+                </div>
+                <button class="btn-continue" onclick="nextStep()" disabled id="step1Btn">Continue</button>
+            </div>
+
+            <!-- Step 2: Situation -->
+            <div class="onboarding-step" data-step="2">
+                <h2 class="step-title">What's on your mind today?</h2>
+                <p class="step-subtitle">No pressure — we can always pivot as we talk.</p>
+                <div class="situation-grid">
+                    <button class="situation-card" data-situation="friendship">
+                        <span class="situation-emoji">👯</span>
+                        <span class="situation-label">Friendship stuff</span>
+                        <span class="situation-desc">Drama, distance, boundaries</span>
+                    </button>
+                    <button class="situation-card" data-situation="romantic">
+                        <span class="situation-emoji">💕</span>
+                        <span class="situation-label">Romantic relationship</span>
+                        <span class="situation-desc">Dating, partners, situationships</span>
+                    </button>
+                    <button class="situation-card" data-situation="family">
+                        <span class="situation-emoji">🏠</span>
+                        <span class="situation-label">Family dynamics</span>
+                        <span class="situation-desc">Parents, siblings, relatives</span>
+                    </button>
+                    <button class="situation-card" data-situation="self">
+                        <span class="situation-emoji">🪞</span>
+                        <span class="situation-label">Just need to vent</span>
+                        <span class="situation-desc">Process feelings, think out loud</span>
+                    </button>
+                </div>
+                <button class="btn-continue" onclick="nextStep()" disabled id="step2Btn">Continue</button>
+            </div>
+
+            <!-- Step 3: Tone Preference -->
+            <div class="onboarding-step" data-step="3">
+                <h2 class="step-title">How real do you want me to be?</h2>
+                <p class="step-subtitle">You can adjust this anytime during our chat.</p>
+
+                <div class="tone-selector">
+                    <div class="tone-track">
+                        <input type="range" min="1" max="5" value="3" class="tone-slider" id="toneSlider">
+                        <div class="tone-markers">
+                            <span class="tone-marker" data-value="1"></span>
+                            <span class="tone-marker" data-value="2"></span>
+                            <span class="tone-marker" data-value="3"></span>
+                            <span class="tone-marker" data-value="4"></span>
+                            <span class="tone-marker" data-value="5"></span>
+                        </div>
+                    </div>
+                    <div class="tone-labels">
+                        <div class="tone-label left">
+                            <span class="tone-name">Gentle</span>
+                            <span class="tone-desc">Soft support, validation first</span>
+                        </div>
+                        <div class="tone-label right">
+                            <span class="tone-name">Real Talk</span>
+                            <span class="tone-desc">Honest truths, loving directness</span>
+                        </div>
+                    </div>
+                    <div class="tone-preview" id="tonePreview">
+                        <p class="preview-label">Preview:</p>
+                        <p class="preview-text" id="previewText">"I totally get why that's bothering you. Let's think through this together and figure out what feels right for you."</p>
+                    </div>
+                </div>
+
+                <button class="btn-continue btn-start" onclick="startChat()">
+                    Let's Talk
+                    <span class="btn-arrow">→</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Screen -->
+    <section id="chat" class="screen">
+        <header class="chat-header">
+            <button class="header-back" onclick="showScreen('landing')">
+                <span>←</span>
+            </button>
+            <div class="header-info">
+                <span class="header-title">Gal Bestfriend</span>
+                <span class="header-status" id="headerStatus">Ready to listen</span>
+            </div>
+            <button class="header-settings" onclick="toggleSettings()">
+                <span class="settings-icon">⚙</span>
+            </button>
+        </header>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-content">
+                <h3 class="settings-title">Conversation Settings</h3>
+
+                <div class="settings-group">
+                    <label class="settings-label">Advice Tone</label>
+                    <div class="mini-tone-selector">
+                        <span class="mini-label">Gentle</span>
+                        <input type="range" min="1" max="5" value="3" class="mini-tone-slider" id="chatToneSlider">
+                        <span class="mini-label">Real</span>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label class="settings-label">Response Style</label>
+                    <div class="style-options">
+                        <button class="style-btn active" data-style="conversational">Conversational</button>
+                        <button class="style-btn" data-style="structured">Structured</button>
+                        <button class="style-btn" data-style="brief">Brief</button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label class="settings-label">Focus Area</label>
+                    <div class="focus-options">
+                        <button class="focus-btn active" data-focus="emotional">Emotional Support</button>
+                        <button class="focus-btn" data-focus="practical">Practical Advice</button>
+                        <button class="focus-btn" data-focus="perspective">New Perspective</button>
+                    </div>
+                </div>
+
+                <button class="settings-close" onclick="toggleSettings()">Done</button>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be inserted here -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-avatar">♡</div>
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+            <div class="quick-prompts" id="quickPrompts">
+                <button class="quick-prompt" data-prompt="I need to vent about something">Need to vent</button>
+                <button class="quick-prompt" data-prompt="Can you help me see their perspective?">Their perspective</button>
+                <button class="quick-prompt" data-prompt="What should I say to them?">What to say</button>
+                <button class="quick-prompt" data-prompt="Am I overreacting?">Am I overreacting?</button>
+            </div>
+            <div class="input-wrapper">
+                <textarea
+                    id="chatInput"
+                    class="chat-textarea"
+                    placeholder="Tell me what's going on..."
+                    rows="1"
+                ></textarea>
+                <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceInput()" title="Voice input">
+                    <span class="voice-icon">🎤</span>
+                    <div class="voice-waveform">
+                        <span class="waveform-bar"></span>
+                        <span class="waveform-bar"></span>
+                        <span class="waveform-bar"></span>
+                        <span class="waveform-bar"></span>
+                        <span class="waveform-bar"></span>
+                    </div>
+                    <span class="voice-feedback" id="voiceFeedback">Listening...</span>
+                </button>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    <span class="send-icon">↑</span>
+                </button>
+            </div>
+            <p class="input-disclaimer">Your conversations are private and never stored on our servers.</p>
+        </div>
+    </section>
+
+    <!-- Maker-Checker Validation Modal -->
+    <div class="validation-modal" id="validationModal">
+        <div class="validation-content">
+            <div class="validation-header">
+                <span class="validation-icon">✓</span>
+                <h3>Response Quality Check</h3>
+            </div>
+            <div class="validation-body">
+                <div class="check-item passed" data-check="tone">
+                    <span class="check-icon">✓</span>
+                    <div class="check-info">
+                        <span class="check-label">Tone Alignment</span>
+                        <span class="check-status">Matches your preference</span>
+                    </div>
+                </div>
+                <div class="check-item passed" data-check="safety">
+                    <span class="check-icon">✓</span>
+                    <div class="check-info">
+                        <span class="check-label">Safe & Supportive</span>
+                        <span class="check-status">No harmful content detected</span>
+                    </div>
+                </div>
+                <div class="check-item passed" data-check="empathy">
+                    <span class="check-icon">✓</span>
+                    <div class="check-info">
+                        <span class="check-label">Empathetic Response</span>
+                        <span class="check-status">Acknowledges your feelings</span>
+                    </div>
+                </div>
+                <div class="check-item passed" data-check="actionable">
+                    <span class="check-icon">✓</span>
+                    <div class="check-info">
+                        <span class="check-label">Actionable Insight</span>
+                        <span class="check-status">Provides helpful guidance</span>
+                    </div>
+                </div>
+            </div>
+            <div class="validation-footer">
+                <button class="validation-btn secondary" onclick="requestNewResponse()">Try Different Approach</button>
+                <button class="validation-btn primary" onclick="acceptResponse()">Looks Good</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
