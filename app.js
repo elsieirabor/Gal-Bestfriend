@@ -9,8 +9,10 @@
 const AppState = {
     currentScreen: 'landing',
     currentStep: 1,
+    totalSteps: 4,
     user: {
         name: '',
+        colorTheme: 'rose',  // Mood-boosting color theme
         situation: '',
         toneLevel: 3,  // 1 = Gentle, 5 = Real Talk
         responseStyle: 'conversational',
@@ -19,6 +21,16 @@ const AppState = {
     conversation: [],
     isTyping: false,
     pendingResponse: null
+};
+
+// Color theme definitions for mood boosting
+const colorThemes = {
+    rose: { name: 'Rose', mood: 'warm & nurturing', h: 355, s: 25, l: 35 },
+    coral: { name: 'Coral', mood: 'energizing & uplifting', h: 16, s: 65, l: 55 },
+    lavender: { name: 'Lavender', mood: 'calming & peaceful', h: 270, s: 35, l: 50 },
+    sage: { name: 'Sage', mood: 'grounding & balanced', h: 140, s: 25, l: 45 },
+    ocean: { name: 'Ocean', mood: 'serene & refreshing', h: 200, s: 45, l: 45 },
+    sunshine: { name: 'Sunshine', mood: 'joyful & optimistic', h: 45, s: 75, l: 50 }
 };
 
 // Tone level descriptions for preview
@@ -86,9 +98,41 @@ function showScreen(screenId) {
         AppState.currentScreen = screenId;
     }
 
+    // Scroll to top on mobile for smooth UX
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+
+    // Reset onboarding if going back to landing
+    if (screenId === 'landing') {
+        AppState.currentStep = 1;
+        updateProgress();
+        showStep(1);
+    }
+
     // Initialize screen-specific logic
     if (screenId === 'chat') {
         initializeChat();
+    }
+
+    // Initialize onboarding if entering
+    if (screenId === 'onboarding') {
+        // Focus first input for better mobile UX
+        setTimeout(() => {
+            const nameInput = document.getElementById('userName');
+            if (nameInput && AppState.currentStep === 1) {
+                nameInput.focus();
+            }
+        }, 400);
+    }
+}
+
+// Back button handler for onboarding
+function goBack() {
+    if (AppState.currentStep > 1) {
+        showStep(AppState.currentStep - 1);
+    } else {
+        showScreen('landing');
     }
 }
 
@@ -99,10 +143,10 @@ function showScreen(screenId) {
 function updateProgress() {
     const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
-    const progress = (AppState.currentStep / 3) * 100;
+    const progress = (AppState.currentStep / AppState.totalSteps) * 100;
 
     progressFill.style.width = `${progress}%`;
-    progressText.textContent = `Step ${AppState.currentStep} of 3`;
+    progressText.textContent = `Step ${AppState.currentStep} of ${AppState.totalSteps}`;
 }
 
 function showStep(step) {
@@ -117,10 +161,13 @@ function showStep(step) {
 
     AppState.currentStep = step;
     updateProgress();
+
+    // Scroll to top for smooth mobile experience
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function nextStep() {
-    if (AppState.currentStep < 3) {
+    if (AppState.currentStep < AppState.totalSteps) {
         showStep(AppState.currentStep + 1);
     }
 }
@@ -130,8 +177,74 @@ function startChat() {
     const toneSlider = document.getElementById('toneSlider');
     AppState.user.toneLevel = parseInt(toneSlider.value);
 
+    // Apply the selected color theme
+    applyColorTheme(AppState.user.colorTheme);
+
     // Transition to chat
     showScreen('chat');
+}
+
+// ============================================
+// COLOR THEME SYSTEM
+// ============================================
+
+function applyColorTheme(themeName) {
+    const theme = colorThemes[themeName];
+    if (!theme) return;
+
+    // Apply theme to document
+    document.documentElement.setAttribute('data-theme', themeName);
+
+    // Also set CSS custom properties directly for smooth transitions
+    document.documentElement.style.setProperty('--primary-h', theme.h);
+    document.documentElement.style.setProperty('--primary-s', `${theme.s}%`);
+    document.documentElement.style.setProperty('--primary-l', `${theme.l}%`);
+
+    // Add a subtle mood-boost animation
+    createMoodSparkle();
+}
+
+function createMoodSparkle() {
+    // Create sparkle effect for mood boost
+    const sparkleCount = 5;
+    for (let i = 0; i < sparkleCount; i++) {
+        setTimeout(() => {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'mood-sparkle';
+            sparkle.style.left = `${Math.random() * window.innerWidth}px`;
+            sparkle.style.top = `${Math.random() * window.innerHeight * 0.5}px`;
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => sparkle.remove(), 600);
+        }, i * 100);
+    }
+}
+
+function initColorPicker() {
+    const colorOptions = document.querySelectorAll('.color-option');
+    const continueBtn = document.getElementById('step2Btn');
+
+    colorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selection from all options
+            colorOptions.forEach(o => o.classList.remove('selected'));
+
+            // Select this option
+            option.classList.add('selected');
+            AppState.user.colorTheme = option.dataset.color;
+
+            // Preview the color theme immediately
+            applyColorTheme(option.dataset.color);
+
+            // Enable continue button
+            continueBtn.disabled = false;
+
+            // Small haptic feedback for mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+    });
 }
 
 // ============================================
@@ -156,12 +269,12 @@ function initNameInput() {
 }
 
 // ============================================
-// STEP 2: SITUATION SELECTION
+// STEP 3: SITUATION SELECTION
 // ============================================
 
 function initSituationCards() {
     const cards = document.querySelectorAll('.situation-card');
-    const continueBtn = document.getElementById('step2Btn');
+    const continueBtn = document.getElementById('step3Btn');
 
     cards.forEach(card => {
         card.addEventListener('click', () => {
@@ -172,12 +285,17 @@ function initSituationCards() {
             card.classList.add('selected');
             AppState.user.situation = card.dataset.situation;
             continueBtn.disabled = false;
+
+            // Small haptic feedback for mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
         });
     });
 }
 
 // ============================================
-// STEP 3: TONE SELECTOR
+// STEP 4: TONE SELECTOR
 // ============================================
 
 function initToneSlider() {
@@ -238,7 +356,7 @@ function addUserMessage(text) {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const messageEl = document.createElement('div');
-    messageEl.className = 'message user';
+    messageEl.className = 'message user just-sent';
     messageEl.innerHTML = `
         <div class="message-content">
             <p>${escapeHtml(text)}</p>
@@ -250,6 +368,11 @@ function addUserMessage(text) {
 
     messagesContainer.appendChild(messageEl);
     scrollToBottom();
+
+    // Remove the animation class after it plays
+    setTimeout(() => {
+        messageEl.classList.remove('just-sent');
+    }, 300);
 
     // Add to conversation history
     AppState.conversation.push({ role: 'user', content: text, timestamp });
@@ -277,7 +400,11 @@ function addAIMessage(text, showValidation = false) {
                 <p>${text}</p>
             </div>
             <div class="message-meta">
-                <span>♡</span>
+                <span class="meta-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                    </svg>
+                </span>
                 <span>${timestamp}</span>
             </div>
         `;
@@ -854,6 +981,7 @@ function escapeHtml(text) {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all components
     initNameInput();
+    initColorPicker();
     initSituationCards();
     initToneSlider();
     initChatInput();
@@ -865,6 +993,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load any saved state from localStorage (optional persistence)
     loadSavedState();
+
+    // Apply default color theme
+    applyColorTheme(AppState.user.colorTheme);
 });
 
 function loadSavedState() {
@@ -872,7 +1003,11 @@ function loadSavedState() {
         const saved = localStorage.getItem('galBestfriend_state');
         if (saved) {
             const state = JSON.parse(saved);
-            // Could restore previous conversation or preferences here
+            // Restore color theme if saved
+            if (state.user && state.user.colorTheme) {
+                AppState.user.colorTheme = state.user.colorTheme;
+                applyColorTheme(state.user.colorTheme);
+            }
         }
     } catch (e) {
         // Ignore localStorage errors
@@ -1086,6 +1221,13 @@ window.GalBestfriend = {
     setFocusArea: (focus) => {
         AppState.user.focusArea = focus;
     },
+    setColorTheme: (theme) => {
+        if (colorThemes[theme]) {
+            AppState.user.colorTheme = theme;
+            applyColorTheme(theme);
+        }
+    },
+    getColorThemes: () => colorThemes,
     getConversation: () => AppState.conversation,
     // Hook for external AI integration
     connectAI: (handler) => {
