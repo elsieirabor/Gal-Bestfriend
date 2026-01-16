@@ -524,248 +524,528 @@ function generateResponse(userMessage) {
     addAIMessage(response, shouldValidate);
 }
 
+// ============================================
+// MESSAGE ANALYSIS - Extract specific details
+// ============================================
+
+function analyzeMessage(message) {
+    const lower = message.toLowerCase();
+    const analysis = {
+        people: [],
+        actions: [],
+        emotions: [],
+        keyPhrases: [],
+        questions: [],
+        timeframe: null,
+        intensity: 'medium'
+    };
+
+    // Extract people mentioned
+    const peoplePatterns = [
+        { pattern: /\b(my |the )?(boyfriend|bf)\b/i, person: 'boyfriend', type: 'romantic' },
+        { pattern: /\b(my |the )?(girlfriend|gf)\b/i, person: 'girlfriend', type: 'romantic' },
+        { pattern: /\b(my |the )?(partner|spouse|husband|wife)\b/i, person: 'partner', type: 'romantic' },
+        { pattern: /\b(my |the )?(ex)\b/i, person: 'ex', type: 'romantic' },
+        { pattern: /\b(my |the )?(best friend|bestie|bff)\b/i, person: 'best friend', type: 'friendship' },
+        { pattern: /\b(my |the |a )?(friend|buddy)\b/i, person: 'friend', type: 'friendship' },
+        { pattern: /\b(my |the )?(mom|mother|mum)\b/i, person: 'mom', type: 'family' },
+        { pattern: /\b(my |the )?(dad|father)\b/i, person: 'dad', type: 'family' },
+        { pattern: /\b(my |the )?(sister|brother|sibling)\b/i, person: '$1', type: 'family' },
+        { pattern: /\b(my |the )?(boss|manager|coworker|colleague)\b/i, person: '$1', type: 'work' },
+        { pattern: /\bhe\b/i, person: 'he', type: 'unknown' },
+        { pattern: /\bshe\b/i, person: 'she', type: 'unknown' },
+        { pattern: /\bthey\b/i, person: 'they', type: 'unknown' }
+    ];
+
+    peoplePatterns.forEach(({ pattern, person, type }) => {
+        const match = message.match(pattern);
+        if (match) {
+            const actualPerson = person.startsWith('$') ? match[1] || person : person;
+            if (!analysis.people.find(p => p.person === actualPerson)) {
+                analysis.people.push({ person: actualPerson, type });
+            }
+        }
+    });
+
+    // Extract actions/events - what happened
+    const actionPatterns = [
+        { pattern: /(?:he|she|they|my \w+) (said|told me|texted|called|messaged)/i, action: 'communication' },
+        { pattern: /(?:he|she|they|my \w+) (ignored|ghosted|left me on read|didn't respond|didn't reply)/i, action: 'ignored' },
+        { pattern: /(?:he|she|they|my \w+) (lied|cheated|betrayed|broke my trust)/i, action: 'betrayal' },
+        { pattern: /(?:he|she|they|my \w+) (yelled|screamed|got angry|blew up)/i, action: 'conflict' },
+        { pattern: /(?:he|she|they|my \w+) (left|broke up|ended|walked away|moved out)/i, action: 'ending' },
+        { pattern: /(?:he|she|they|my \w+) (apologized|said sorry|reached out)/i, action: 'reconciliation' },
+        { pattern: /we (fought|argued|had a fight|disagreed)/i, action: 'argument' },
+        { pattern: /we (broke up|split|ended things)/i, action: 'breakup' },
+        { pattern: /we (talked|discussed|had a conversation)/i, action: 'discussion' },
+        { pattern: /i (found out|discovered|realized|saw)/i, action: 'discovery' },
+        { pattern: /i (told|said|texted|called|confronted)/i, action: 'user_action' }
+    ];
+
+    actionPatterns.forEach(({ pattern, action }) => {
+        if (pattern.test(message)) {
+            analysis.actions.push(action);
+        }
+    });
+
+    // Extract emotions - what they're feeling
+    const emotionPatterns = [
+        { pattern: /\b(angry|furious|pissed|mad|livid)\b/i, emotion: 'angry', intensity: 'high' },
+        { pattern: /\b(annoyed|irritated|frustrated)\b/i, emotion: 'frustrated', intensity: 'medium' },
+        { pattern: /\b(sad|depressed|down|low|devastated|heartbroken)\b/i, emotion: 'sad', intensity: 'high' },
+        { pattern: /\b(hurt|wounded|crushed|broken)\b/i, emotion: 'hurt', intensity: 'high' },
+        { pattern: /\b(anxious|worried|nervous|scared|afraid)\b/i, emotion: 'anxious', intensity: 'medium' },
+        { pattern: /\b(confused|lost|uncertain|torn)\b/i, emotion: 'confused', intensity: 'medium' },
+        { pattern: /\b(lonely|alone|isolated)\b/i, emotion: 'lonely', intensity: 'medium' },
+        { pattern: /\b(embarrassed|ashamed|humiliated)\b/i, emotion: 'embarrassed', intensity: 'medium' },
+        { pattern: /\b(jealous|envious)\b/i, emotion: 'jealous', intensity: 'medium' },
+        { pattern: /\b(guilty|regret|remorse)\b/i, emotion: 'guilty', intensity: 'medium' },
+        { pattern: /\b(betrayed|deceived)\b/i, emotion: 'betrayed', intensity: 'high' },
+        { pattern: /\b(disappointed|let down)\b/i, emotion: 'disappointed', intensity: 'medium' },
+        { pattern: /\b(exhausted|tired|drained)\b/i, emotion: 'exhausted', intensity: 'medium' },
+        { pattern: /\b(hopeless|helpless|stuck)\b/i, emotion: 'hopeless', intensity: 'high' },
+        { pattern: /\bi (can't stop thinking|keep thinking|can't get over)\b/i, emotion: 'preoccupied', intensity: 'medium' },
+        { pattern: /\bi (don't know what to (do|feel|think))\b/i, emotion: 'overwhelmed', intensity: 'medium' }
+    ];
+
+    emotionPatterns.forEach(({ pattern, emotion, intensity }) => {
+        if (pattern.test(message)) {
+            analysis.emotions.push(emotion);
+            if (intensity === 'high') analysis.intensity = 'high';
+        }
+    });
+
+    // Extract key phrases - specific things they said that we should acknowledge
+    const keyPhrasePatterns = [
+        /"([^"]+)"/g,  // Quoted speech
+        /said ["']?([^"']+)["']?/gi,  // "said X"
+        /told me (?:that )?["']?([^"'.!?]+)/gi,  // "told me X"
+        /called me (?:a )?["']?([^"'.!?]+)/gi,  // "called me X"
+    ];
+
+    keyPhrasePatterns.forEach(pattern => {
+        let match;
+        while ((match = pattern.exec(message)) !== null) {
+            if (match[1] && match[1].length > 2 && match[1].length < 100) {
+                analysis.keyPhrases.push(match[1].trim());
+            }
+        }
+    });
+
+    // Extract questions they're asking
+    const questionPatterns = [
+        /should i ([^?]+)\?/gi,
+        /what (should|do|can|would) i ([^?]+)\?/gi,
+        /how (do|can|should) i ([^?]+)\?/gi,
+        /is it (wrong|okay|normal|weird) (to |if |that )?([^?]+)\?/gi,
+        /am i (wrong|crazy|overreacting|being too)/gi,
+        /do you think ([^?]+)\?/gi
+    ];
+
+    questionPatterns.forEach(pattern => {
+        let match;
+        while ((match = pattern.exec(message)) !== null) {
+            analysis.questions.push(match[0]);
+        }
+    });
+
+    // Detect timeframe
+    if (/\b(today|just now|just happened|earlier|this morning|tonight)\b/i.test(message)) {
+        analysis.timeframe = 'recent';
+    } else if (/\b(yesterday|last night|few days ago)\b/i.test(message)) {
+        analysis.timeframe = 'days';
+    } else if (/\b(last week|few weeks|this week)\b/i.test(message)) {
+        analysis.timeframe = 'weeks';
+    } else if (/\b(months|been going on|for a while|long time)\b/i.test(message)) {
+        analysis.timeframe = 'ongoing';
+    }
+
+    // Detect message intensity
+    if (/!{2,}|[A-Z]{5,}|\bi (really|truly|seriously|genuinely|honestly)\b/i.test(message)) {
+        analysis.intensity = 'high';
+    }
+
+    return analysis;
+}
+
+// ============================================
+// ACKNOWLEDGMENT BUILDER - Reflect back what they said
+// ============================================
+
+function buildAcknowledgment(analysis, tone, userMessage) {
+    const parts = [];
+
+    // Acknowledge the person involved
+    const mainPerson = analysis.people.find(p => p.person !== 'he' && p.person !== 'she' && p.person !== 'they')
+        || analysis.people[0];
+
+    // Acknowledge their emotions first
+    if (analysis.emotions.length > 0) {
+        const emotionAcks = {
+            gentle: {
+                angry: "I can hear how angry you are, and that anger is valid.",
+                frustrated: "That frustration makes complete sense.",
+                sad: "I'm sorry you're feeling so sad right now.",
+                hurt: "That sounds really painful, and I'm sorry you're hurting.",
+                anxious: "It's understandable to feel anxious about this.",
+                confused: "It makes sense that you're feeling confused.",
+                lonely: "Feeling lonely like that is really hard.",
+                embarrassed: "That sounds like a really uncomfortable situation.",
+                jealous: "Those feelings are natural, even when they're uncomfortable.",
+                guilty: "It sounds like you're being really hard on yourself.",
+                betrayed: "Feeling betrayed like that cuts deep. I'm sorry.",
+                disappointed: "That disappointment is real and valid.",
+                exhausted: "It sounds like this has been wearing you down.",
+                hopeless: "When things feel hopeless, everything is harder. I hear you.",
+                preoccupied: "It's hard when something takes up so much space in your head.",
+                overwhelmed: "That's a lot to process. No wonder you're feeling overwhelmed."
+            },
+            balanced: {
+                angry: "I get why you're angry — that would set anyone off.",
+                frustrated: "That sounds really frustrating.",
+                sad: "That's genuinely sad, and it's okay to feel that way.",
+                hurt: "That's hurtful. No wonder you're upset.",
+                anxious: "I understand the anxiety around this.",
+                confused: "Yeah, that's confusing. There's a lot to untangle here.",
+                lonely: "Loneliness is tough, especially in situations like this.",
+                embarrassed: "That's an awkward spot to be in.",
+                jealous: "Jealousy can be uncomfortable but it's telling you something.",
+                guilty: "Sounds like the guilt is weighing on you.",
+                betrayed: "That's a betrayal. That's serious.",
+                disappointed: "That's disappointing, no question.",
+                exhausted: "You sound exhausted by this whole thing.",
+                hopeless: "Feeling stuck is the worst. Let's see what we can do.",
+                preoccupied: "It's clearly living rent-free in your head right now.",
+                overwhelmed: "That's overwhelming. Let's break it down."
+            },
+            direct: {
+                angry: "You're pissed. I get it.",
+                frustrated: "Frustrating as hell, yeah.",
+                sad: "That sucks. It's okay to be sad about it.",
+                hurt: "That's painful. No sugarcoating it.",
+                anxious: "The anxiety makes sense here.",
+                confused: "Confusing situation. Let's figure it out.",
+                lonely: "Feeling alone in this is rough.",
+                embarrassed: "Awkward situation. Let's deal with it.",
+                jealous: "Jealousy's hitting — let's look at why.",
+                guilty: "The guilt is eating at you.",
+                betrayed: "That's betrayal, plain and simple.",
+                disappointed: "Disappointing. Let's talk about what to do.",
+                exhausted: "You're drained. I hear it.",
+                hopeless: "Feeling stuck. But you're here, so let's work on it.",
+                preoccupied: "Can't stop thinking about it, huh?",
+                overwhelmed: "A lot going on. Let's tackle it."
+            }
+        };
+
+        const primaryEmotion = analysis.emotions[0];
+        const ack = emotionAcks[tone][primaryEmotion];
+        if (ack) parts.push(ack);
+    }
+
+    // Acknowledge what happened specifically
+    if (analysis.actions.length > 0) {
+        const action = analysis.actions[0];
+        const person = mainPerson ? mainPerson.person : 'they';
+
+        const actionAcks = {
+            ignored: {
+                gentle: `Being ignored by ${person} — especially when you need a response — that hurts.`,
+                balanced: `${person.charAt(0).toUpperCase() + person.slice(1)} ignoring you like that isn't okay.`,
+                direct: `${person.charAt(0).toUpperCase() + person.slice(1)} ignoring you is disrespectful.`
+            },
+            betrayal: {
+                gentle: `What ${person} did was a serious breach of trust. That's not small.`,
+                balanced: `That's a real betrayal from ${person}. Trust is hard to rebuild.`,
+                direct: `${person.charAt(0).toUpperCase() + person.slice(1)} betrayed you. That's facts.`
+            },
+            conflict: {
+                gentle: `That kind of reaction from ${person} must have been really jarring.`,
+                balanced: `${person.charAt(0).toUpperCase() + person.slice(1)} blowing up like that isn't fair to you.`,
+                direct: `${person.charAt(0).toUpperCase() + person.slice(1)} losing it on you — not cool.`
+            },
+            argument: {
+                gentle: `Arguments can leave us feeling so raw afterward.`,
+                balanced: `Fighting like that takes a toll on both of you.`,
+                direct: `That fight sounds intense. Let's unpack it.`
+            },
+            breakup: {
+                gentle: `Breakups are one of the hardest things. I'm here for you.`,
+                balanced: `That's a big change. How are you holding up?`,
+                direct: `Breakups hit hard. How are you doing with it?`
+            },
+            discovery: {
+                gentle: `Finding that out must have been such a shock.`,
+                balanced: `Discovering that changes things. I can see why you're processing.`,
+                direct: `That's a big revelation. Changes the picture.`
+            },
+            reconciliation: {
+                gentle: `It takes courage to reach out. How did it feel when that happened?`,
+                balanced: `Them apologizing — how did that land for you?`,
+                direct: `They apologized. Do you believe it?`
+            }
+        };
+
+        const actionAck = actionAcks[action]?.[tone];
+        if (actionAck && !parts.some(p => p.includes(person))) {
+            parts.push(actionAck);
+        }
+    }
+
+    // Acknowledge specific quotes/things said
+    if (analysis.keyPhrases.length > 0) {
+        const phrase = analysis.keyPhrases[0];
+        const quoteAcks = {
+            gentle: `When they said "${phrase}" — that had to sting.`,
+            balanced: `"${phrase}" — yeah, that's a lot to hear.`,
+            direct: `"${phrase}" — ouch. Let's address that.`
+        };
+        if (phrase.length > 5 && phrase.length < 60) {
+            parts.push(quoteAcks[tone]);
+        }
+    }
+
+    // Acknowledge the timeframe
+    if (analysis.timeframe === 'recent' && analysis.intensity === 'high') {
+        const freshAcks = {
+            gentle: "This just happened, so everything is still so raw.",
+            balanced: "This is fresh, so take a breath with me.",
+            direct: "This literally just happened. Your head's probably spinning."
+        };
+        parts.push(freshAcks[tone]);
+    } else if (analysis.timeframe === 'ongoing') {
+        const ongoingAcks = {
+            gentle: "Dealing with this for so long takes a real toll.",
+            balanced: "This has been going on a while. That wears you down.",
+            direct: "You've been sitting with this too long. Let's figure it out."
+        };
+        parts.push(ongoingAcks[tone]);
+    }
+
+    return parts.slice(0, 2).join(' ');
+}
+
+// ============================================
+// ADVICE BUILDER - Give relevant, specific advice
+// ============================================
+
+function buildAdvice(analysis, tone, focus, userMessage) {
+    const lower = userMessage.toLowerCase();
+
+    // If they asked a specific question, address it
+    if (analysis.questions.length > 0) {
+        return buildQuestionResponse(analysis, tone, lower);
+    }
+
+    // Otherwise, provide advice based on what happened
+    return buildSituationalAdvice(analysis, tone, focus, lower);
+}
+
+function buildQuestionResponse(analysis, tone, message) {
+    // "Should I" questions
+    if (message.includes('should i text') || message.includes('should i message') || message.includes('should i reach out')) {
+        const responses = {
+            gentle: "Before reaching out, check in with yourself — what do you hope to get from that conversation? Make sure you're in a space where any response (or non-response) won't knock you off your feet.",
+            balanced: "Here's my take: only reach out if you're okay with any outcome — including silence. What would you want to say if you did text?",
+            direct: "Real question: what do you actually want from texting them? If you're hoping for a specific response, you might be setting yourself up. What's your gut saying?"
+        };
+        return responses[tone];
+    }
+
+    if (message.includes('should i forgive') || message.includes('should i give') && message.includes('chance')) {
+        const responses = {
+            gentle: "Forgiveness is a personal journey, not an obligation. It's okay to take all the time you need. What would forgiving look like for you? It doesn't have to mean going back to how things were.",
+            balanced: "Forgiveness isn't about them — it's about whether holding onto this is serving you. But forgiving doesn't mean forgetting or even reconciling. What do YOU need to move forward?",
+            direct: "Here's the real question: has anything actually changed? Forgiveness without change just sets you up to get hurt the same way again. What's different now?"
+        };
+        return responses[tone];
+    }
+
+    if (message.includes('should i break up') || message.includes('should i end') || message.includes('should i leave')) {
+        const responses = {
+            gentle: "That's such a big decision, and only you can make it. But ask yourself: when you imagine your life six months from now, what feels more like relief? Staying or leaving?",
+            balanced: "Big question. Here's what I'd ask: Is this a rough patch in an otherwise good relationship, or is this the relationship? There's a difference between fighting FOR something and just fighting.",
+            direct: "Here's how I'd think about it: Are you trying to fix something fixable, or are you just avoiding the pain of ending it? Sometimes we stay because leaving is hard, not because staying is right."
+        };
+        return responses[tone];
+    }
+
+    if (message.includes('am i wrong') || message.includes('am i overreacting') || message.includes('am i crazy')) {
+        const responses = {
+            gentle: "Your feelings are not wrong — they're information. Even if your reaction feels big, it's pointing to something real that matters to you. What do you think triggered such a strong response?",
+            balanced: "You're not crazy for feeling what you feel. The question isn't whether your reaction is 'right' — it's whether it matches what actually happened. Walk me through it.",
+            direct: "Let's figure that out together. Tell me exactly what happened and how you reacted. Sometimes we overreact, sometimes people gaslight us into thinking we are. Let's look at the facts."
+        };
+        return responses[tone];
+    }
+
+    // Generic question response
+    const genericResponses = {
+        gentle: "That's a really important question to be asking yourself. What does your intuition say, underneath all the noise?",
+        balanced: "Good question. Let's think through it — what are the actual options here, and what are the real consequences of each?",
+        direct: "Alright, let's work through this. What are you really asking — and what answer are you hoping I won't give you?"
+    };
+    return genericResponses[tone];
+}
+
+function buildSituationalAdvice(analysis, tone, focus, message) {
+    const hasConflict = analysis.actions.some(a => ['conflict', 'argument', 'betrayal'].includes(a));
+    const hasEnding = analysis.actions.some(a => ['ending', 'breakup', 'ignored'].includes(a));
+    const mainPerson = analysis.people.find(p => !['he', 'she', 'they'].includes(p.person));
+    const personType = mainPerson?.type || AppState.user.situation;
+
+    // If they're venting and focus is emotional, don't give advice yet
+    if (focus === 'emotional' && !message.includes('?') && analysis.emotions.length > 0) {
+        const followUps = {
+            gentle: "I'm here to listen. Is there more you need to get out, or would it help to think through next steps?",
+            balanced: "I hear you. Do you want to keep venting, or are you ready to figure out what to do?",
+            direct: "Got it. Needed to get that out? Or are you ready to talk about what to do?"
+        };
+        return followUps[tone];
+    }
+
+    // Conflict-based advice
+    if (hasConflict) {
+        if (personType === 'romantic') {
+            const advice = {
+                gentle: "When things cool down, it might help to revisit this conversation — but from a place of curiosity instead of defense. Something like 'I want to understand what you were feeling when...'",
+                balanced: "Once things settle, try having the conversation again but slower. Focus on understanding each other, not winning. 'I felt X when Y happened' works better than accusations.",
+                direct: "Look — fighting happens. But how you repair matters. When you're both calm, address what actually triggered this. Don't let it fester."
+            };
+            return advice[tone];
+        }
+        if (personType === 'family') {
+            const advice = {
+                gentle: "Family conflicts hit different because the history runs deep. Sometimes the argument isn't about what it seems — it's about older patterns. Can you see any of those at play here?",
+                balanced: "Family stuff is layered. This fight might be connected to older dynamics. The question is: what boundary do you need here, regardless of whether they understand it?",
+                direct: "Family drama usually isn't about the thing you're fighting about. What's the real issue underneath? And what boundary do you need to set?"
+            };
+            return advice[tone];
+        }
+        // Default conflict advice
+        const advice = {
+            gentle: "Give yourself permission to step back before deciding how to respond. Sometimes space creates clarity.",
+            balanced: "Before you respond, get clear on what outcome you actually want. That should guide what you say.",
+            direct: "What do you want to happen here? Figure that out first, then we can work backwards on what to do."
+        };
+        return advice[tone];
+    }
+
+    // Ending/loss-based advice
+    if (hasEnding) {
+        const advice = {
+            gentle: "Endings are hard, even when they might be right. For now, focus on getting through each day. The clarity will come. What's one small thing you can do to take care of yourself today?",
+            balanced: "This is a transition. It's going to hurt for a while, and that's normal. Focus on what you can control — your routines, your support system, your next steps.",
+            direct: "It's over. That's painful but also potentially freeing. What do you need right now — to grieve, to move forward, or just to sit with it for a bit?"
+        };
+        return advice[tone];
+    }
+
+    // Perspective-focused advice
+    if (focus === 'perspective') {
+        const advice = {
+            gentle: "Sometimes stepping back helps. If a friend told you this exact story, what would you say to them? We're often wiser for others than ourselves.",
+            balanced: "Let's zoom out. What would this situation look like from the outside? And what might you be missing from their perspective?",
+            direct: "Okay, different angle: what's the most generous interpretation of their behavior? I'm not saying it's correct, but what might they say if they were defending themselves?"
+        };
+        return advice[tone];
+    }
+
+    // Practical-focused advice
+    if (focus === 'practical') {
+        const advice = {
+            gentle: "When you're ready, one small step might help: write out what you want to happen, then we can work backwards from there.",
+            balanced: "Let's get practical. What's the ONE thing you could do this week that would move this forward — even a little?",
+            direct: "Action time. What's the move here? What can you actually do about this situation?"
+        };
+        return advice[tone];
+    }
+
+    // Default follow-up
+    const followUps = {
+        gentle: "Thank you for sharing all of that. What feels like the most important thing to focus on right now?",
+        balanced: "I'm following. What do you think you need most right now — to process this more, or to figure out next steps?",
+        direct: "Okay, I've got the picture. What do you want to do about it?"
+    };
+    return followUps[tone];
+}
+
+// ============================================
+// MAIN RESPONSE CRAFTER - Combines everything
+// ============================================
+
 function craftResponse(userMessage) {
     const tone = getToneKey(AppState.user.toneLevel);
     const style = AppState.user.responseStyle;
     const focus = AppState.user.focusArea;
-    const situation = AppState.user.situation;
-    const lowerMessage = userMessage.toLowerCase();
 
-    // Analyze message sentiment and intent
-    const isVenting = lowerMessage.includes('vent') || lowerMessage.includes('frustrated') ||
-        lowerMessage.includes('angry') || lowerMessage.includes('annoyed');
-    const isAsking = lowerMessage.includes('should') || lowerMessage.includes('what do') ||
-        lowerMessage.includes('how do') || lowerMessage.includes('?');
-    const isSad = lowerMessage.includes('sad') || lowerMessage.includes('hurt') ||
-        lowerMessage.includes('cry') || lowerMessage.includes('miss');
-    const isConfused = lowerMessage.includes('confused') || lowerMessage.includes("don't know") ||
-        lowerMessage.includes('not sure') || lowerMessage.includes("don't understand");
+    // Analyze the message
+    const analysis = analyzeMessage(userMessage);
 
-    // Build response based on multiple factors
-    let responses = [];
+    // Store analysis for context (helps with follow-up messages)
+    if (!AppState.conversationContext) {
+        AppState.conversationContext = [];
+    }
+    AppState.conversationContext.push(analysis);
 
-    // Emotional acknowledgment first (based on focus)
-    if (focus === 'emotional' || isVenting || isSad) {
-        responses.push(...getEmotionalResponses(tone, isVenting, isSad, isConfused));
+    // Keep only last 5 analyses for context
+    if (AppState.conversationContext.length > 5) {
+        AppState.conversationContext.shift();
     }
 
-    // Add perspective if requested
-    if (focus === 'perspective' || lowerMessage.includes('perspective')) {
-        responses.push(...getPerspectiveResponses(tone, situation));
-    }
+    // Build personalized acknowledgment
+    const acknowledgment = buildAcknowledgment(analysis, tone, userMessage);
 
-    // Add practical advice if asking or focused on practical
-    if (focus === 'practical' || isAsking) {
-        responses.push(...getPracticalResponses(tone, situation, lowerMessage));
-    }
+    // Build relevant advice
+    const advice = buildAdvice(analysis, tone, focus, userMessage);
 
-    // Default responses if none matched
-    if (responses.length === 0) {
-        responses = getDefaultResponses(tone);
-    }
-
-    // Select and optionally combine responses based on style
+    // Combine based on style
     let response;
     if (style === 'brief') {
-        response = responses[0];
+        // Brief: shorter acknowledgment + concise advice
+        response = acknowledgment || advice;
     } else if (style === 'structured') {
-        response = responses.slice(0, 2).join('\n\n');
+        // Structured: clear separation
+        if (acknowledgment && advice) {
+            response = `${acknowledgment}\n\n${advice}`;
+        } else {
+            response = acknowledgment || advice;
+        }
     } else {
-        // Conversational - natural flow
-        response = responses.slice(0, Math.min(responses.length, 2)).join(' ');
+        // Conversational: natural flow
+        if (acknowledgment && advice) {
+            response = `${acknowledgment} ${advice}`;
+        } else {
+            response = acknowledgment || advice;
+        }
+    }
+
+    // Fallback if something went wrong
+    if (!response || response.trim() === '') {
+        response = getContextualFallback(tone, userMessage);
     }
 
     return response;
 }
 
-function getEmotionalResponses(tone, isVenting, isSad, isConfused) {
-    const responses = {
-        gentle: {
-            venting: [
-                "I'm here, let it all out. Your feelings are completely valid.",
-                "That sounds really overwhelming. Take all the time you need.",
-                "It's okay to feel this way. I'm listening without any judgment."
-            ],
-            sad: [
-                "I'm sorry you're hurting. That takes real courage to share.",
-                "Sending you so much warmth right now. This is hard.",
-                "It's okay to feel sad. These feelings deserve space."
-            ],
-            confused: [
-                "It's completely normal to feel uncertain. Let's explore this together.",
-                "Confusion often means you're processing something important.",
-                "There's no rush to figure this out. We can take it slow."
-            ],
-            default: [
-                "Thank you for trusting me with this. How are you feeling right now?",
-                "I appreciate you sharing that. What's weighing on you most?"
-            ]
-        },
-        balanced: {
-            venting: [
-                "I hear you. That does sound frustrating. What happened?",
-                "That's a lot to deal with. Let's work through it.",
-                "Your frustration makes sense. Tell me more."
-            ],
-            sad: [
-                "I'm sorry you're going through this. What would help right now?",
-                "That's really hard. How long have you been feeling this way?",
-                "It's okay to sit with these feelings. I'm here."
-            ],
-            confused: [
-                "Let's untangle this together. What's the main thing confusing you?",
-                "That's a lot of mixed signals. What does your gut say?",
-                "Sometimes clarity comes from talking it out. Keep going."
-            ],
-            default: [
-                "Got it. Tell me more about what's going on.",
-                "I'm following. What happened next?"
-            ]
-        },
-        direct: {
-            venting: [
-                "Okay, let's get into it. What specifically set this off?",
-                "I can tell you need to get this out. What's the core issue?",
-                "Let's cut to what's really bothering you here."
-            ],
-            sad: [
-                "That's painful. What do you think is at the root of this?",
-                "I hear you. Now let's figure out what to do about it.",
-                "Pain is information. What is this telling you?"
-            ],
-            confused: [
-                "Let's break this down. What are the actual facts here?",
-                "Strip away the emotions for a sec — what actually happened?",
-                "Confusion usually means something's not adding up. What is it?"
-            ],
-            default: [
-                "Got it. What do you want to do about this?",
-                "Okay, and what's your instinct here?"
-            ]
-        }
+function getContextualFallback(tone, message) {
+    const hasQuestion = message.includes('?');
+
+    if (hasQuestion) {
+        const fallbacks = {
+            gentle: "That's a thoughtful question. Tell me more about what's behind it — what's making you ask?",
+            balanced: "Good question. Give me more context — what's the situation?",
+            direct: "I want to give you a real answer. Fill me in more — what's going on?"
+        };
+        return fallbacks[tone];
+    }
+
+    const fallbacks = {
+        gentle: "I hear you. There's a lot there. What part feels most important to talk through?",
+        balanced: "Got it. What's the part of this that's weighing on you most?",
+        direct: "Okay. What do you need — to vent more, or to figure out what to do?"
     };
-
-    const toneResponses = responses[tone];
-    if (isVenting) return toneResponses.venting;
-    if (isSad) return toneResponses.sad;
-    if (isConfused) return toneResponses.confused;
-    return toneResponses.default;
-}
-
-function getPerspectiveResponses(tone, situation) {
-    const perspectives = {
-        gentle: {
-            friendship: [
-                "Sometimes friends are going through things we don't see. That doesn't excuse hurt, but it might explain it.",
-                "What do you think might be going on in their world right now?"
-            ],
-            romantic: [
-                "Relationships are two people with different experiences and expectations meeting. What might they be feeling?",
-                "Sometimes the way someone loves is different from how we need to be loved. Does that resonate?"
-            ],
-            family: [
-                "Family patterns run deep. Sometimes reactions come from old wounds, not the present moment.",
-                "Generational differences can create real disconnects. What values might be clashing here?"
-            ],
-            self: [
-                "You're being really hard on yourself. Would you talk to a friend this way?",
-                "What would the most compassionate version of you say right now?"
-            ]
-        },
-        balanced: {
-            friendship: [
-                "Let's think about their side for a minute. What might explain their behavior?",
-                "Is there any context we're missing about what's happening in their life?"
-            ],
-            romantic: [
-                "What do you think they'd say if they were telling their version of this?",
-                "Are you both speaking the same language when it comes to what you need?"
-            ],
-            family: [
-                "How do you think they see this situation?",
-                "What patterns do you notice repeating here?"
-            ],
-            self: [
-                "What would you tell a friend in this exact situation?",
-                "Are you being fair to yourself right now?"
-            ]
-        },
-        direct: {
-            friendship: [
-                "Real talk: is this friendship actually working for both of you?",
-                "What would a healthy version of this friendship look like?"
-            ],
-            romantic: [
-                "Here's the thing — are you both actually wanting the same thing?",
-                "Strip away the feelings. Is this relationship meeting your needs?"
-            ],
-            family: [
-                "Sometimes family has to be loved from a distance. Is that something to consider?",
-                "You can love them and still have boundaries. What lines need to be drawn?"
-            ],
-            self: [
-                "What's the honest truth you're avoiding right now?",
-                "If you knew you wouldn't fail, what would you do?"
-            ]
-        }
-    };
-
-    return perspectives[tone][situation] || perspectives[tone].self;
-}
-
-function getPracticalResponses(tone, situation, message) {
-    const practical = {
-        gentle: [
-            "When you're ready, here's something small you could try...",
-            "One gentle step might be to...",
-            "There's no pressure, but if you wanted to, you could..."
-        ],
-        balanced: [
-            "Here's what I think could help: ",
-            "A few options to consider: ",
-            "My suggestion would be to..."
-        ],
-        direct: [
-            "Here's what I'd do: ",
-            "The move here is to...",
-            "Cut to the chase — you need to..."
-        ]
-    };
-
-    // Situation-specific advice
-    const advice = {
-        friendship: "have an honest conversation about what you're both feeling",
-        romantic: "communicate clearly about your needs and listen to theirs",
-        family: "set a boundary that protects your peace while staying respectful",
-        self: "take one small action that your future self will thank you for"
-    };
-
-    const prefix = practical[tone][Math.floor(Math.random() * practical[tone].length)];
-    const specificAdvice = advice[situation] || advice.self;
-
-    return [prefix + specificAdvice + "."];
-}
-
-function getDefaultResponses(tone) {
-    const defaults = {
-        gentle: [
-            "I'm here with you. Tell me more whenever you're ready.",
-            "Thank you for sharing that. What feels most important to focus on?",
-            "I'm holding space for whatever you need right now."
-        ],
-        balanced: [
-            "Tell me more. I'm listening.",
-            "What else is on your mind about this?",
-            "Keep going — I want to understand."
-        ],
-        direct: [
-            "And? What's the real issue here?",
-            "Okay, so what do you want to do about it?",
-            "What's stopping you from handling this?"
-        ]
-    };
-
-    return defaults[tone];
+    return fallbacks[tone];
 }
 
 // ============================================
