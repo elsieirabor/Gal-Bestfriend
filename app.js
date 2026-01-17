@@ -511,7 +511,35 @@ function sendMessage() {
 // AI RESPONSE GENERATION
 // ============================================
 
-function generateResponse(userMessage) {
+async function generateResponse(userMessage) {
+    // Check if external AI is connected
+    if (window.externalAIHandler) {
+        try {
+            showTypingIndicator();
+
+            const context = {
+                toneLevel: AppState.user.toneLevel,
+                responseStyle: AppState.user.responseStyle,
+                focusArea: AppState.user.focusArea,
+                situation: AppState.user.situation,
+                userName: AppState.user.name,
+                history: AppState.conversation.slice(-10)
+            };
+
+            const response = await window.externalAIHandler(userMessage, context);
+            hideTypingIndicator();
+
+            // Add AI message without the built-in delay (already waited for API)
+            addAIMessageDirect(response);
+            return;
+        } catch (error) {
+            console.error('External AI error:', error);
+            hideTypingIndicator();
+            // Fall back to local response
+        }
+    }
+
+    // Fallback: use local response generation
     const response = craftResponse(userMessage);
 
     // Decide whether to show validation (maker-checker)
@@ -522,6 +550,34 @@ function generateResponse(userMessage) {
         userMessage.toLowerCase().includes('advice');
 
     addAIMessage(response, shouldValidate);
+}
+
+// Direct message add (no typing delay - for external AI responses)
+function addAIMessageDirect(text) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const messageEl = document.createElement('div');
+    messageEl.className = 'message ai';
+    messageEl.innerHTML = `
+        <div class="message-content">
+            <p>${text}</p>
+        </div>
+        <div class="message-meta">
+            <span class="meta-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+            </span>
+            <span>${timestamp}</span>
+        </div>
+    `;
+
+    messagesContainer.appendChild(messageEl);
+    scrollToBottom();
+
+    // Add to conversation history
+    AppState.conversation.push({ role: 'ai', content: text, timestamp });
 }
 
 // ============================================
@@ -1276,7 +1332,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply default color theme
     applyColorTheme(AppState.user.colorTheme);
+
+    // Connect to AI API (will use local fallback if API unavailable)
+    initAIConnection();
 });
+
+// Initialize AI API connection
+function initAIConnection() {
+    window.GalBestfriend.connectAI(async (userMessage, context) => {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: userMessage,
+                context: context
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+
+        const data = await response.json();
+        return data.reply;
+    });
+}
 
 function loadSavedState() {
     try {
