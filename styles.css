@@ -756,7 +756,114 @@ body {
     color: white;
 }
 
-/* Step 5: Tone Selector */
+/* Step 5: Avatar Selection */
+.avatar-grid {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+}
+
+.avatar-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background: var(--warm-white);
+    border: 3px solid var(--blush);
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    min-width: 140px;
+    max-width: 160px;
+}
+
+.avatar-option:hover {
+    border-color: var(--rose);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.avatar-option.selected {
+    border-color: var(--burgundy);
+    background: linear-gradient(135deg, rgba(109, 69, 72, 0.05) 0%, rgba(74, 47, 50, 0.1) 100%);
+    box-shadow: var(--shadow-glow);
+}
+
+.avatar-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--blush) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+}
+
+.avatar-image svg {
+    width: 90px;
+    height: 90px;
+}
+
+.avatar-option.selected .avatar-image {
+    box-shadow: 0 0 20px rgba(109, 69, 72, 0.3);
+}
+
+.avatar-name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--burgundy-deep);
+}
+
+.avatar-tagline {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* Chat Header Avatar */
+.header-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--blush) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.header-avatar svg {
+    width: 40px;
+    height: 40px;
+}
+
+/* Typing indicator avatar */
+.typing-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--blush) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.typing-avatar svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Step 6: Tone Selector */
 .tone-selector {
     margin-bottom: var(--space-xl);
 }

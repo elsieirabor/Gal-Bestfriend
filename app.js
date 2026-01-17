@@ -9,13 +9,14 @@
 const AppState = {
     currentScreen: 'landing',
     currentStep: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     user: {
         name: '',
         colorTheme: 'rose',  // Mood-boosting color theme
         situation: '',
         belief: '',  // spiritual, religious, secular, mixed
         lifeStage: '',  // teens, early20s, late20s, 30s, 40plus
+        avatar: '',  // Selected avatar ID
         toneLevel: 3,  // 1 = Gentle, 5 = Real Talk
         responseStyle: 'conversational',
         focusArea: 'emotional'
@@ -34,6 +35,277 @@ const colorThemes = {
     ocean: { name: 'Ocean', mood: 'serene & refreshing', h: 200, s: 45, l: 45 },
     sunshine: { name: 'Sunshine', mood: 'joyful & optimistic', h: 45, s: 75, l: 50 }
 };
+
+// Avatar pool - 12 diverse illustrated characters
+// Each has metadata for intelligent matching
+const avatarPool = [
+    // Younger presenting (teens/early 20s)
+    {
+        id: 'maya',
+        name: 'Maya',
+        ageGroup: ['teens', 'early20s'],
+        energy: ['warm', 'nurturing'],
+        colorAffinity: ['rose', 'coral', 'lavender'],
+        beliefAffinity: ['spiritual', 'mixed'],
+        toneAffinity: [1, 2, 3],
+        skinTone: '#8D5524',
+        hairColor: '#1a1a2e',
+        hairStyle: 'curly',
+        tagline: 'Warm & understanding'
+    },
+    {
+        id: 'sofia',
+        name: 'Sofia',
+        ageGroup: ['teens', 'early20s'],
+        energy: ['vibrant', 'direct'],
+        colorAffinity: ['coral', 'sunshine', 'rose'],
+        beliefAffinity: ['religious', 'mixed'],
+        toneAffinity: [3, 4, 5],
+        skinTone: '#C68642',
+        hairColor: '#3d2314',
+        hairStyle: 'wavy',
+        tagline: 'Bold & real'
+    },
+    {
+        id: 'lily',
+        name: 'Lily',
+        ageGroup: ['teens', 'early20s'],
+        energy: ['calm', 'thoughtful'],
+        colorAffinity: ['lavender', 'ocean', 'sage'],
+        beliefAffinity: ['secular', 'spiritual'],
+        toneAffinity: [1, 2, 3],
+        skinTone: '#FFDFC4',
+        hairColor: '#4a3728',
+        hairStyle: 'straight',
+        tagline: 'Calm & insightful'
+    },
+    {
+        id: 'zara',
+        name: 'Zara',
+        ageGroup: ['teens', 'early20s'],
+        energy: ['vibrant', 'warm'],
+        colorAffinity: ['sunshine', 'coral', 'ocean'],
+        beliefAffinity: ['mixed', 'spiritual'],
+        toneAffinity: [2, 3, 4],
+        skinTone: '#6B4423',
+        hairColor: '#0d0d0d',
+        hairStyle: 'braids',
+        tagline: 'Vibrant & supportive'
+    },
+    // Middle presenting (late 20s/30s)
+    {
+        id: 'nina',
+        name: 'Nina',
+        ageGroup: ['late20s', '30s'],
+        energy: ['warm', 'grounded'],
+        colorAffinity: ['sage', 'rose', 'ocean'],
+        beliefAffinity: ['spiritual', 'mixed'],
+        toneAffinity: [2, 3, 4],
+        skinTone: '#D1A36D',
+        hairColor: '#2c1810',
+        hairStyle: 'locs',
+        tagline: 'Grounded & wise'
+    },
+    {
+        id: 'elena',
+        name: 'Elena',
+        ageGroup: ['late20s', '30s'],
+        energy: ['direct', 'confident'],
+        colorAffinity: ['coral', 'rose', 'sunshine'],
+        beliefAffinity: ['secular', 'mixed'],
+        toneAffinity: [3, 4, 5],
+        skinTone: '#E8BEAC',
+        hairColor: '#5a3825',
+        hairStyle: 'bob',
+        tagline: 'Direct & empowering'
+    },
+    {
+        id: 'priya',
+        name: 'Priya',
+        ageGroup: ['late20s', '30s'],
+        energy: ['nurturing', 'thoughtful'],
+        colorAffinity: ['lavender', 'rose', 'sage'],
+        beliefAffinity: ['religious', 'spiritual'],
+        toneAffinity: [1, 2, 3],
+        skinTone: '#B07C5E',
+        hairColor: '#0a0a0a',
+        hairStyle: 'long',
+        tagline: 'Gentle & perceptive'
+    },
+    {
+        id: 'jade',
+        name: 'Jade',
+        ageGroup: ['late20s', '30s'],
+        energy: ['calm', 'balanced'],
+        colorAffinity: ['ocean', 'sage', 'lavender'],
+        beliefAffinity: ['secular', 'spiritual'],
+        toneAffinity: [2, 3, 4],
+        skinTone: '#F1C27D',
+        hairColor: '#1a1a1a',
+        hairStyle: 'shoulder',
+        tagline: 'Balanced & honest'
+    },
+    // Mature presenting (40+)
+    {
+        id: 'grace',
+        name: 'Grace',
+        ageGroup: ['30s', '40plus'],
+        energy: ['warm', 'wise'],
+        colorAffinity: ['rose', 'sage', 'lavender'],
+        beliefAffinity: ['religious', 'spiritual'],
+        toneAffinity: [1, 2, 3],
+        skinTone: '#4A2912',
+        hairColor: '#2d2d2d',
+        hairStyle: 'natural',
+        tagline: 'Wise & comforting'
+    },
+    {
+        id: 'diana',
+        name: 'Diana',
+        ageGroup: ['30s', '40plus'],
+        energy: ['confident', 'direct'],
+        colorAffinity: ['coral', 'sunshine', 'ocean'],
+        beliefAffinity: ['secular', 'mixed'],
+        toneAffinity: [3, 4, 5],
+        skinTone: '#F0C8A0',
+        hairColor: '#8B4513',
+        hairStyle: 'elegant',
+        tagline: 'Confident & experienced'
+    },
+    {
+        id: 'mei',
+        name: 'Mei',
+        ageGroup: ['30s', '40plus'],
+        energy: ['calm', 'nurturing'],
+        colorAffinity: ['sage', 'ocean', 'lavender'],
+        beliefAffinity: ['spiritual', 'mixed'],
+        toneAffinity: [1, 2, 3],
+        skinTone: '#F5DEB3',
+        hairColor: '#1a1a1a',
+        hairStyle: 'updo',
+        tagline: 'Serene & understanding'
+    },
+    {
+        id: 'carmen',
+        name: 'Carmen',
+        ageGroup: ['30s', '40plus'],
+        energy: ['vibrant', 'warm'],
+        colorAffinity: ['coral', 'rose', 'sunshine'],
+        beliefAffinity: ['religious', 'mixed'],
+        toneAffinity: [2, 3, 4],
+        skinTone: '#C19A6B',
+        hairColor: '#3d2314',
+        hairStyle: 'waves',
+        tagline: 'Vibrant & heartfelt'
+    }
+];
+
+// Avatar selection algorithm - picks best 3 matches for user
+function selectAvatarsForUser() {
+    const { colorTheme, belief, lifeStage, toneLevel, name } = AppState.user;
+
+    // Score each avatar based on user profile match
+    const scoredAvatars = avatarPool.map(avatar => {
+        let score = 0;
+
+        // Life stage match (highest weight)
+        if (avatar.ageGroup.includes(lifeStage)) {
+            score += 30;
+        }
+
+        // Color theme affinity
+        if (avatar.colorAffinity.includes(colorTheme)) {
+            score += 20;
+        }
+
+        // Belief system affinity
+        if (avatar.beliefAffinity.includes(belief)) {
+            score += 20;
+        }
+
+        // Tone preference alignment
+        if (avatar.toneAffinity.includes(toneLevel)) {
+            score += 15;
+        }
+
+        // Add slight randomness to ensure variety
+        score += Math.random() * 10;
+
+        return { ...avatar, score };
+    });
+
+    // Sort by score and return top 3
+    scoredAvatars.sort((a, b) => b.score - a.score);
+    return scoredAvatars.slice(0, 3);
+}
+
+// Generate SVG avatar based on avatar data
+function generateAvatarSVG(avatar, size = 80) {
+    const { skinTone, hairColor, hairStyle, id } = avatar;
+
+    // Hair path varies by style
+    const hairPaths = {
+        curly: `<path d="M20 25c-2-8 2-15 10-18 8-3 18-2 24 3 6 5 8 12 6 20" fill="${hairColor}"/>
+                <circle cx="18" cy="28" r="6" fill="${hairColor}"/>
+                <circle cx="52" cy="26" r="5" fill="${hairColor}"/>
+                <circle cx="24" cy="18" r="5" fill="${hairColor}"/>
+                <circle cx="46" cy="16" r="5" fill="${hairColor}"/>
+                <circle cx="35" cy="12" r="6" fill="${hairColor}"/>`,
+        wavy: `<path d="M15 30c0-15 8-22 20-22s20 7 20 22c0 2-1 4-2 5h-36c-1-1-2-3-2-5z" fill="${hairColor}"/>
+               <path d="M15 35c-2 10 0 20 5 28h-2c-6-10-7-22-3-28z" fill="${hairColor}"/>
+               <path d="M55 35c2 10 0 20-5 28h2c6-10 7-22 3-28z" fill="${hairColor}"/>`,
+        straight: `<path d="M14 28c0-14 8-20 21-20s21 6 21 20v35h-8V45h-26v18h-8V28z" fill="${hairColor}"/>`,
+        braids: `<path d="M18 25c0-12 7-18 17-18s17 6 17 18" fill="${hairColor}"/>
+                 <path d="M12 30c0 0 2 35 4 45h4c-2-15-3-35-3-45" fill="${hairColor}"/>
+                 <path d="M58 30c0 0-2 35-4 45h-4c2-15 3-35 3-45" fill="${hairColor}"/>
+                 <rect x="14" y="28" width="5" height="40" rx="2" fill="${hairColor}"/>
+                 <rect x="51" y="28" width="5" height="40" rx="2" fill="${hairColor}"/>`,
+        locs: `<path d="M17 28c0-13 8-20 18-20s18 7 18 20" fill="${hairColor}"/>
+               <rect x="14" y="26" width="4" height="35" rx="2" fill="${hairColor}"/>
+               <rect x="20" y="24" width="4" height="38" rx="2" fill="${hairColor}"/>
+               <rect x="26" y="22" width="4" height="40" rx="2" fill="${hairColor}"/>
+               <rect x="40" y="22" width="4" height="40" rx="2" fill="${hairColor}"/>
+               <rect x="46" y="24" width="4" height="38" rx="2" fill="${hairColor}"/>
+               <rect x="52" y="26" width="4" height="35" rx="2" fill="${hairColor}"/>`,
+        bob: `<path d="M12 30c0-16 10-23 23-23s23 7 23 23c0 12-4 20-10 25h-26c-6-5-10-13-10-25z" fill="${hairColor}"/>`,
+        long: `<path d="M14 28c0-14 9-21 21-21s21 7 21 20v45h-10V50H24v22H14V28z" fill="${hairColor}"/>`,
+        shoulder: `<path d="M13 30c0-16 10-22 22-22s22 6 22 22c0 5-1 10-3 14l-8 20h-22l-8-20c-2-4-3-9-3-14z" fill="${hairColor}"/>`,
+        natural: `<path d="M10 32c0-18 12-27 25-27s25 9 25 27c0 10-3 18-8 24h-34c-5-6-8-14-8-24z" fill="${hairColor}"/>
+                  <circle cx="15" cy="25" r="5" fill="${hairColor}"/>
+                  <circle cx="55" cy="25" r="5" fill="${hairColor}"/>`,
+        elegant: `<path d="M15 35c2-18 10-25 20-25s18 7 20 25c1 5 0 10-2 14h-36c-2-4-3-9-2-14z" fill="${hairColor}"/>
+                  <ellipse cx="50" cy="25" rx="8" ry="12" fill="${hairColor}"/>`,
+        updo: `<path d="M18 35c0-12 7-18 17-18s17 6 17 18" fill="${hairColor}"/>
+               <ellipse cx="35" cy="12" rx="14" ry="10" fill="${hairColor}"/>
+               <circle cx="35" cy="8" r="8" fill="${hairColor}"/>`,
+        waves: `<path d="M12 32c0-16 10-24 23-24s23 8 23 24c0 8-2 15-6 20" fill="${hairColor}"/>
+                <path d="M12 32c-1 12 2 25 8 35h-4c-6-12-8-26-4-35z" fill="${hairColor}"/>
+                <path d="M58 32c1 12-2 25-8 35h4c6-12 8-26 4-35z" fill="${hairColor}"/>`
+    };
+
+    return `<svg viewBox="0 0 70 80" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+        <!-- Hair back -->
+        ${hairPaths[hairStyle] || hairPaths.wavy}
+        <!-- Face -->
+        <ellipse cx="35" cy="42" rx="18" ry="22" fill="${skinTone}"/>
+        <!-- Eyes -->
+        <ellipse cx="28" cy="40" rx="3" ry="2" fill="#2d2d2d"/>
+        <ellipse cx="42" cy="40" rx="3" ry="2" fill="#2d2d2d"/>
+        <!-- Eye shine -->
+        <circle cx="29" cy="39" r="1" fill="white" opacity="0.7"/>
+        <circle cx="43" cy="39" r="1" fill="white" opacity="0.7"/>
+        <!-- Eyebrows -->
+        <path d="M24 35 Q28 33 32 35" stroke="#4a4a4a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M38 35 Q42 33 46 35" stroke="#4a4a4a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Nose -->
+        <path d="M35 44 Q37 48 35 50" stroke="${skinTone}" stroke-width="2" fill="none" filter="brightness(0.9)"/>
+        <!-- Warm smile -->
+        <path d="M28 54 Q35 60 42 54" stroke="#c96b6b" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Subtle blush -->
+        <ellipse cx="24" cy="50" rx="4" ry="2" fill="#ffb6c1" opacity="0.3"/>
+        <ellipse cx="46" cy="50" rx="4" ry="2" fill="#ffb6c1" opacity="0.3"/>
+    </svg>`;
+}
 
 // Tone level descriptions for preview
 const tonePreviewTexts = {
@@ -163,6 +435,11 @@ function showStep(step) {
 
     AppState.currentStep = step;
     updateProgress();
+
+    // Render avatar options when entering step 5
+    if (step === 5) {
+        renderAvatarOptions();
+    }
 
     // Scroll to top for smooth mobile experience
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -307,7 +584,13 @@ function initPersonalization() {
 
     function checkCanContinue() {
         // Both belief and lifestage must be selected
-        continueBtn.disabled = !(AppState.user.belief && AppState.user.lifeStage);
+        const canContinue = AppState.user.belief && AppState.user.lifeStage;
+        continueBtn.disabled = !canContinue;
+
+        // Pre-generate avatar options when user completes this step
+        if (canContinue) {
+            prepareAvatarOptions();
+        }
     }
 
     beliefOptions.forEach(option => {
@@ -346,7 +629,75 @@ function initPersonalization() {
 }
 
 // ============================================
-// STEP 4: TONE SELECTOR
+// STEP 5: AVATAR SELECTION
+// ============================================
+
+let selectedAvatars = []; // Store the 3 avatars shown to user
+
+function prepareAvatarOptions() {
+    // Select best 3 avatars based on user profile
+    selectedAvatars = selectAvatarsForUser();
+}
+
+function initAvatarSelection() {
+    // This gets called when step 5 becomes active
+    const avatarGrid = document.getElementById('avatarGrid');
+    const continueBtn = document.getElementById('step5Btn');
+
+    if (!avatarGrid) return;
+
+    // Render the 3 selected avatars
+    renderAvatarOptions();
+
+    // Handle avatar selection
+    avatarGrid.addEventListener('click', (e) => {
+        const avatarOption = e.target.closest('.avatar-option');
+        if (!avatarOption) return;
+
+        // Remove selection from all
+        document.querySelectorAll('.avatar-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+
+        // Select this one
+        avatarOption.classList.add('selected');
+        AppState.user.avatar = avatarOption.dataset.avatarId;
+        continueBtn.disabled = false;
+
+        // Haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+    });
+}
+
+function renderAvatarOptions() {
+    const avatarGrid = document.getElementById('avatarGrid');
+    if (!avatarGrid || selectedAvatars.length === 0) return;
+
+    avatarGrid.innerHTML = selectedAvatars.map(avatar => `
+        <button class="avatar-option" data-avatar-id="${avatar.id}">
+            <div class="avatar-image">
+                ${generateAvatarSVG(avatar, 100)}
+            </div>
+            <span class="avatar-name">${avatar.name}</span>
+            <span class="avatar-tagline">${avatar.tagline}</span>
+        </button>
+    `).join('');
+}
+
+function getSelectedAvatar() {
+    return avatarPool.find(a => a.id === AppState.user.avatar) || avatarPool[0];
+}
+
+function getAvatarSVGById(avatarId, size = 40) {
+    const avatar = avatarPool.find(a => a.id === avatarId);
+    if (!avatar) return '';
+    return generateAvatarSVG(avatar, size);
+}
+
+// ============================================
+// STEP 6: TONE SELECTOR
 // ============================================
 
 function initToneSlider() {
@@ -378,6 +729,26 @@ function initializeChat() {
     // Sync tone slider in settings
     const chatToneSlider = document.getElementById('chatToneSlider');
     chatToneSlider.value = AppState.user.toneLevel;
+
+    // Render avatar in header
+    const headerAvatar = document.getElementById('headerAvatar');
+    const headerTitle = document.getElementById('headerTitle');
+    const selectedAvatar = getSelectedAvatar();
+
+    if (headerAvatar && selectedAvatar) {
+        headerAvatar.innerHTML = getAvatarSVGById(selectedAvatar.id, 44);
+    }
+
+    // Update header title with avatar name
+    if (headerTitle && selectedAvatar) {
+        headerTitle.textContent = selectedAvatar.name;
+    }
+
+    // Update typing indicator avatar
+    const typingAvatar = document.querySelector('.typing-avatar');
+    if (typingAvatar && selectedAvatar) {
+        typingAvatar.innerHTML = getAvatarSVGById(selectedAvatar.id, 32);
+    }
 
     // Send welcome message
     setTimeout(() => {
@@ -568,6 +939,7 @@ async function generateResponse(userMessage) {
         try {
             showTypingIndicator();
 
+            const selectedAvatar = getSelectedAvatar();
             const context = {
                 toneLevel: AppState.user.toneLevel,
                 responseStyle: AppState.user.responseStyle,
@@ -576,6 +948,7 @@ async function generateResponse(userMessage) {
                 belief: AppState.user.belief,
                 lifeStage: AppState.user.lifeStage,
                 userName: AppState.user.name,
+                avatarName: selectedAvatar?.name || 'Gal',
                 history: AppState.conversation.slice(-10)
             };
 
@@ -1373,6 +1746,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPicker();
     initSituationCards();
     initPersonalization();
+    initAvatarSelection();
     initToneSlider();
     initChatInput();
     initSettings();

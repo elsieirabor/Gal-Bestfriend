@@ -55,7 +55,7 @@ export default async function handler(req, res) {
 }
 
 function buildSystemPrompt(context) {
-    const { toneLevel, responseStyle, focusArea, situation, userName, belief, lifeStage } = context;
+    const { toneLevel, responseStyle, focusArea, situation, userName, belief, lifeStage, avatarName } = context;
 
     // Tone descriptions - calibrated for emotional support
     const toneDescriptions = {
@@ -203,7 +203,7 @@ function buildSystemPrompt(context) {
 - They may be supporting others while also needing support themselves`
     };
 
-    return `You are Gal Bestfriend - an emotionally intelligent AI companion who helps people navigate relationships, emotions, and life's challenges. You combine the warmth of a best friend with evidence-based communication techniques.
+    return `You are ${avatarName || 'Gal'} - the user's personal bestfriend and emotionally intelligent AI companion who helps people navigate relationships, emotions, and life's challenges. You combine the warmth of a best friend with evidence-based communication techniques.
 
 ====================
 USER PROFILE
