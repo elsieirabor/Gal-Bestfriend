@@ -1,21 +1,14 @@
 // Vercel Serverless Function for OpenAI Integration
 // This handles all AI chat requests securely (API key stays on server)
 
-export const config = {
-    runtime: 'edge',
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
     // Only allow POST requests
     if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-            status: 405,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { message, context } = await req.json();
+        const { message, context } = req.body;
 
         // Build the system prompt based on user preferences
         const systemPrompt = buildSystemPrompt(context);
@@ -47,26 +40,17 @@ export default async function handler(req) {
         if (!response.ok) {
             const error = await response.json();
             console.error('OpenAI API error:', error);
-            return new Response(JSON.stringify({ error: 'AI service error' }), {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return res.status(500).json({ error: 'AI service error' });
         }
 
         const data = await response.json();
         const reply = data.choices[0]?.message?.content || "I'm here for you. Tell me more.";
 
-        return new Response(JSON.stringify({ reply }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return res.status(200).json({ reply });
 
     } catch (error) {
         console.error('Handler error:', error);
-        return new Response(JSON.stringify({ error: 'Internal server error' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }
 
