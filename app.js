@@ -9,11 +9,13 @@
 const AppState = {
     currentScreen: 'landing',
     currentStep: 1,
-    totalSteps: 4,
+    totalSteps: 5,
     user: {
         name: '',
         colorTheme: 'rose',  // Mood-boosting color theme
         situation: '',
+        belief: '',  // spiritual, religious, secular, mixed
+        lifeStage: '',  // teens, early20s, late20s, 30s, 40plus
         toneLevel: 3,  // 1 = Gentle, 5 = Real Talk
         responseStyle: 'conversational',
         focusArea: 'emotional'
@@ -295,6 +297,55 @@ function initSituationCards() {
 }
 
 // ============================================
+// STEP 4: PERSONALIZATION (Belief & Life Stage)
+// ============================================
+
+function initPersonalization() {
+    const beliefOptions = document.querySelectorAll('.belief-option');
+    const lifestageOptions = document.querySelectorAll('.lifestage-option');
+    const continueBtn = document.getElementById('step4Btn');
+
+    function checkCanContinue() {
+        // Both belief and lifestage must be selected
+        continueBtn.disabled = !(AppState.user.belief && AppState.user.lifeStage);
+    }
+
+    beliefOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selection from all belief options
+            beliefOptions.forEach(o => o.classList.remove('selected'));
+
+            // Select this option
+            option.classList.add('selected');
+            AppState.user.belief = option.dataset.belief;
+            checkCanContinue();
+
+            // Small haptic feedback for mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+    });
+
+    lifestageOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selection from all lifestage options
+            lifestageOptions.forEach(o => o.classList.remove('selected'));
+
+            // Select this option
+            option.classList.add('selected');
+            AppState.user.lifeStage = option.dataset.lifestage;
+            checkCanContinue();
+
+            // Small haptic feedback for mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+    });
+}
+
+// ============================================
 // STEP 4: TONE SELECTOR
 // ============================================
 
@@ -522,6 +573,8 @@ async function generateResponse(userMessage) {
                 responseStyle: AppState.user.responseStyle,
                 focusArea: AppState.user.focusArea,
                 situation: AppState.user.situation,
+                belief: AppState.user.belief,
+                lifeStage: AppState.user.lifeStage,
                 userName: AppState.user.name,
                 history: AppState.conversation.slice(-10)
             };
@@ -1319,6 +1372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNameInput();
     initColorPicker();
     initSituationCards();
+    initPersonalization();
     initToneSlider();
     initChatInput();
     initSettings();

@@ -119,7 +119,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <span class="progress-text" id="progressText">Step 1 of 4</span>
+                <span class="progress-text" id="progressText">Step 1 of 5</span>
             </div>
 
             <!-- Step 1: Name -->
@@ -212,8 +212,70 @@
                 <button class="btn-continue" onclick="nextStep()" disabled id="step3Btn">Continue</button>
             </div>
 
-            <!-- Step 4: Tone Preference -->
+            <!-- Step 4: About You - Personalization -->
             <div class="onboarding-step" data-step="4">
+                <h2 class="step-title">A little more about you</h2>
+                <p class="step-subtitle">This helps me give advice that actually fits your life.</p>
+
+                <div class="personalization-section">
+                    <label class="section-label">What guides you?</label>
+                    <p class="section-hint">I can incorporate practices and perspectives that resonate with you</p>
+                    <div class="belief-grid">
+                        <button class="belief-option" data-belief="spiritual">
+                            <span class="belief-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
+                                </svg>
+                            </span>
+                            <span class="belief-label">Spiritual</span>
+                            <span class="belief-desc">Meditation, energy, universe</span>
+                        </button>
+                        <button class="belief-option" data-belief="religious">
+                            <span class="belief-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20M2 12h20M12 2l4 4M12 2l-4 4"/>
+                                </svg>
+                            </span>
+                            <span class="belief-label">Religious/Faith-based</span>
+                            <span class="belief-desc">Prayer, scripture, faith</span>
+                        </button>
+                        <button class="belief-option" data-belief="secular">
+                            <span class="belief-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                            </span>
+                            <span class="belief-label">Practical/Secular</span>
+                            <span class="belief-desc">Logic, psychology, evidence</span>
+                        </button>
+                        <button class="belief-option" data-belief="mixed">
+                            <span class="belief-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </span>
+                            <span class="belief-label">A mix of everything</span>
+                            <span class="belief-desc">Open to all perspectives</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="personalization-section">
+                    <label class="section-label">Where are you in life right now?</label>
+                    <div class="lifestage-grid">
+                        <button class="lifestage-option" data-lifestage="teens">Teen years</button>
+                        <button class="lifestage-option" data-lifestage="early20s">Early 20s</button>
+                        <button class="lifestage-option" data-lifestage="late20s">Late 20s</button>
+                        <button class="lifestage-option" data-lifestage="30s">30s</button>
+                        <button class="lifestage-option" data-lifestage="40plus">40+</button>
+                    </div>
+                </div>
+
+                <button class="btn-continue" onclick="nextStep()" disabled id="step4Btn">Continue</button>
+            </div>
+
+            <!-- Step 5: Tone Preference -->
+            <div class="onboarding-step" data-step="5">
                 <h2 class="step-title">How real do you want me to be?</h2>
                 <p class="step-subtitle">You can adjust this anytime during our chat.</p>
 

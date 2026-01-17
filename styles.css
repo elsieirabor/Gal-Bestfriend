@@ -642,7 +642,121 @@ body {
     color: var(--text-muted);
 }
 
-/* Step 3: Tone Selector */
+/* Step 4: Personalization - About You */
+.personalization-section {
+    margin-bottom: var(--space-xl);
+}
+
+.section-label {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--burgundy-deep);
+    margin-bottom: var(--space-xs);
+}
+
+.section-hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-md);
+}
+
+/* Belief/Worldview Options */
+.belief-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.belief-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: var(--space-lg);
+    background: var(--warm-white);
+    border: 2px solid var(--blush);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-align: left;
+}
+
+.belief-option:hover {
+    border-color: var(--rose);
+    transform: translateY(-2px);
+}
+
+.belief-option.selected {
+    border-color: var(--burgundy);
+    background: linear-gradient(135deg, rgba(109, 69, 72, 0.05) 0%, rgba(74, 47, 50, 0.08) 100%);
+}
+
+.belief-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--burgundy);
+    margin-bottom: var(--space-xs);
+}
+
+.belief-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.belief-option.selected .belief-icon {
+    color: var(--burgundy-deep);
+}
+
+.belief-label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--burgundy-deep);
+}
+
+.belief-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Life Stage Options */
+.lifestage-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.lifestage-option {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--warm-white);
+    border: 2px solid var(--blush);
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.lifestage-option:hover {
+    border-color: var(--rose);
+    color: var(--burgundy);
+}
+
+.lifestage-option.selected {
+    border-color: var(--burgundy);
+    background: var(--burgundy);
+    color: white;
+}
+
+/* Step 5: Tone Selector */
 .tone-selector {
     margin-bottom: var(--space-xl);
 }
