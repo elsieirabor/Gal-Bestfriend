@@ -16,7 +16,11 @@ const AppState = {
         situation: '',
         belief: '',  // spiritual, religious, secular, mixed
         lifeStage: '',  // teens, early20s, late20s, 30s, 40plus
-        avatar: '',  // Selected avatar ID
+        // Custom avatar settings
+        avatarName: '',
+        skinTone: '#D4A574',
+        hairColor: '#3D2314',
+        hairStyle: 'wavy',
         toneLevel: 3,  // 1 = Gentle, 5 = Real Talk
         responseStyle: 'conversational',
         focusArea: 'emotional'
@@ -456,9 +460,9 @@ function showStep(step) {
     AppState.currentStep = step;
     updateProgress();
 
-    // Render avatar options when entering step 5
+    // Initialize avatar creator when entering step 5
     if (step === 5) {
-        renderAvatarOptions();
+        initAvatarCreator();
     }
 
     // Scroll to top for smooth mobile experience
@@ -649,71 +653,225 @@ function initPersonalization() {
 }
 
 // ============================================
-// STEP 5: AVATAR SELECTION
+// STEP 5: AVATAR CREATOR (Customization)
 // ============================================
 
-let selectedAvatars = []; // Store the 3 avatars shown to user
-
-function prepareAvatarOptions() {
-    // Select best 3 avatars based on user profile
-    selectedAvatars = selectAvatarsForUser();
-}
-
-function initAvatarSelection() {
-    // This gets called when step 5 becomes active
-    const avatarGrid = document.getElementById('avatarGrid');
+function initAvatarCreator() {
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarNameInput = document.getElementById('avatarName');
+    const skinToneOptions = document.getElementById('skinToneOptions');
+    const hairColorOptions = document.getElementById('hairColorOptions');
+    const hairStyleOptions = document.getElementById('hairStyleOptions');
     const continueBtn = document.getElementById('step5Btn');
 
-    if (!avatarGrid) return;
+    if (!avatarPreview) return;
 
-    // Render the 3 selected avatars
-    renderAvatarOptions();
+    // Set default selections
+    AppState.user.skinTone = '#D4A574';
+    AppState.user.hairColor = '#3D2314';
+    AppState.user.hairStyle = 'wavy';
 
-    // Handle avatar selection
-    avatarGrid.addEventListener('click', (e) => {
-        const avatarOption = e.target.closest('.avatar-option');
-        if (!avatarOption) return;
+    // Render initial preview
+    updateAvatarPreview();
 
-        // Remove selection from all
-        document.querySelectorAll('.avatar-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
+    // Mark default selections
+    selectDefaultOptions();
 
-        // Select this one
-        avatarOption.classList.add('selected');
-        AppState.user.avatar = avatarOption.dataset.avatarId;
-        continueBtn.disabled = false;
-
-        // Haptic feedback
-        if (navigator.vibrate) {
-            navigator.vibrate(10);
-        }
+    // Name input handler
+    avatarNameInput.addEventListener('input', (e) => {
+        AppState.user.avatarName = e.target.value.trim();
+        checkCanContinue();
     });
+
+    // Skin tone selection
+    skinToneOptions.querySelectorAll('.color-swatch-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            skinToneOptions.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            AppState.user.skinTone = btn.dataset.color;
+            updateAvatarPreview();
+            hapticFeedback();
+        });
+    });
+
+    // Hair color selection
+    hairColorOptions.querySelectorAll('.color-swatch-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            hairColorOptions.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            AppState.user.hairColor = btn.dataset.color;
+            updateAvatarPreview();
+            hapticFeedback();
+        });
+    });
+
+    // Hair style selection
+    hairStyleOptions.querySelectorAll('.style-option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            hairStyleOptions.querySelectorAll('.style-option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            AppState.user.hairStyle = btn.dataset.style;
+            updateAvatarPreview();
+            hapticFeedback();
+        });
+    });
+
+    function checkCanContinue() {
+        continueBtn.disabled = !AppState.user.avatarName;
+    }
+
+    function selectDefaultOptions() {
+        // Select default skin tone (3rd option)
+        const defaultSkin = skinToneOptions.querySelector('[data-color="#D4A574"]');
+        if (defaultSkin) defaultSkin.classList.add('selected');
+
+        // Select default hair color (2nd option)
+        const defaultHair = hairColorOptions.querySelector('[data-color="#3D2314"]');
+        if (defaultHair) defaultHair.classList.add('selected');
+
+        // Select default hair style (wavy)
+        const defaultStyle = hairStyleOptions.querySelector('[data-style="wavy"]');
+        if (defaultStyle) defaultStyle.classList.add('selected');
+    }
 }
 
-function renderAvatarOptions() {
-    const avatarGrid = document.getElementById('avatarGrid');
-    if (!avatarGrid || selectedAvatars.length === 0) return;
-
-    avatarGrid.innerHTML = selectedAvatars.map(avatar => `
-        <button class="avatar-option" data-avatar-id="${avatar.id}">
-            <div class="avatar-image">
-                ${generateAvatarSVG(avatar, 100)}
-            </div>
-            <span class="avatar-name">${avatar.name}</span>
-            <span class="avatar-tagline">${avatar.tagline}</span>
-        </button>
-    `).join('');
+function hapticFeedback() {
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
+    }
 }
 
-function getSelectedAvatar() {
-    return avatarPool.find(a => a.id === AppState.user.avatar) || avatarPool[0];
+function updateAvatarPreview() {
+    const avatarPreview = document.getElementById('avatarPreview');
+    if (!avatarPreview) return;
+
+    const { skinTone, hairColor, hairStyle } = AppState.user;
+    avatarPreview.innerHTML = generateCustomAvatarSVG(skinTone, hairColor, hairStyle, 140);
 }
 
-function getAvatarSVGById(avatarId, size = 40) {
-    const avatar = avatarPool.find(a => a.id === avatarId);
-    if (!avatar) return '';
-    return generateAvatarSVG(avatar, size);
+function generateCustomAvatarSVG(skinTone, hairColor, hairStyle, size = 80) {
+    // Get gradient based on current color theme
+    const theme = AppState.user.colorTheme || 'rose';
+    const gradients = {
+        rose: ['#FF9A9E', '#FECFEF'],
+        coral: ['#FFB199', '#FFE5D9'],
+        lavender: ['#C3B1E1', '#E8DFF5'],
+        sage: ['#A8D5BA', '#D4EAD5'],
+        ocean: ['#89CFF0', '#B5E3F3'],
+        sunshine: ['#FFD93D', '#FFF3B0']
+    };
+    const colors = gradients[theme] || gradients.rose;
+
+    // Different hair paths based on style
+    const hairPaths = {
+        long: `
+            <!-- Long straight hair -->
+            <ellipse cx="50" cy="38" rx="30" ry="26" fill="url(#hairGrad)"/>
+            <path d="M20 38 Q20 75 30 90 L28 95 Q25 80 25 50 Q25 35 50 28 Q75 35 75 50 Q75 80 72 95 L70 90 Q80 75 80 38" fill="url(#hairGrad)"/>
+        `,
+        wavy: `
+            <!-- Wavy hair -->
+            <ellipse cx="50" cy="38" rx="30" ry="26" fill="url(#hairGrad)"/>
+            <path d="M22 40 Q18 55 25 70 Q20 80 28 88 Q24 75 28 65 Q22 55 26 42 Z" fill="url(#hairGrad)"/>
+            <path d="M78 40 Q82 55 75 70 Q80 80 72 88 Q76 75 72 65 Q78 55 74 42 Z" fill="url(#hairGrad)"/>
+            <path d="M28 38 Q30 28 50 26 Q70 28 72 38 Q68 32 50 30 Q32 32 28 38" fill="url(#hairGrad)"/>
+        `,
+        curly: `
+            <!-- Curly hair -->
+            <ellipse cx="50" cy="36" rx="32" ry="28" fill="url(#hairGrad)"/>
+            <circle cx="22" cy="42" r="10" fill="url(#hairGrad)"/>
+            <circle cx="78" cy="42" r="10" fill="url(#hairGrad)"/>
+            <circle cx="18" cy="55" r="8" fill="url(#hairGrad)"/>
+            <circle cx="82" cy="55" r="8" fill="url(#hairGrad)"/>
+            <circle cx="22" cy="68" r="7" fill="url(#hairGrad)"/>
+            <circle cx="78" cy="68" r="7" fill="url(#hairGrad)"/>
+            <path d="M28 35 Q30 25 50 24 Q70 25 72 35 Q68 28 50 27 Q32 28 28 35" fill="url(#hairGrad)"/>
+        `,
+        short: `
+            <!-- Short hair -->
+            <ellipse cx="50" cy="36" rx="28" ry="22" fill="url(#hairGrad)"/>
+            <path d="M26 38 Q28 26 50 24 Q72 26 74 38 Q70 30 50 28 Q30 30 26 38" fill="url(#hairGrad)"/>
+        `,
+        braids: `
+            <!-- Braided hair -->
+            <ellipse cx="50" cy="36" rx="28" ry="24" fill="url(#hairGrad)"/>
+            <path d="M28 38 Q30 28 50 26 Q70 28 72 38 Q68 32 50 30 Q32 32 28 38" fill="url(#hairGrad)"/>
+            <!-- Left braid -->
+            <path d="M24 45 Q20 50 22 58 Q18 62 20 70 Q16 74 18 82 Q14 86 16 92" stroke="url(#hairGrad)" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <!-- Right braid -->
+            <path d="M76 45 Q80 50 78 58 Q82 62 80 70 Q84 74 82 82 Q86 86 84 92" stroke="url(#hairGrad)" stroke-width="8" fill="none" stroke-linecap="round"/>
+        `,
+        natural: `
+            <!-- Natural/Afro hair -->
+            <ellipse cx="50" cy="32" rx="36" ry="32" fill="url(#hairGrad)"/>
+            <circle cx="20" cy="45" r="12" fill="url(#hairGrad)"/>
+            <circle cx="80" cy="45" r="12" fill="url(#hairGrad)"/>
+            <circle cx="15" cy="35" r="8" fill="url(#hairGrad)"/>
+            <circle cx="85" cy="35" r="8" fill="url(#hairGrad)"/>
+        `
+    };
+
+    const hairPath = hairPaths[hairStyle] || hairPaths.wavy;
+
+    return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="${colors[0]}"/>
+                <stop offset="100%" stop-color="${colors[1]}"/>
+            </linearGradient>
+            <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="${lightenColor(skinTone, 20)}"/>
+                <stop offset="100%" stop-color="${skinTone}"/>
+            </linearGradient>
+            <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="${lightenColor(hairColor, 30)}"/>
+                <stop offset="100%" stop-color="${hairColor}"/>
+            </linearGradient>
+        </defs>
+
+        <!-- Beautiful gradient background -->
+        <circle cx="50" cy="50" r="48" fill="url(#bgGrad)"/>
+        <circle cx="50" cy="50" r="48" fill="white" opacity="0.1"/>
+
+        <!-- Subtle inner glow -->
+        <circle cx="50" cy="50" r="44" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+
+        <!-- Neck/Body hint -->
+        <ellipse cx="50" cy="95" rx="18" ry="15" fill="url(#skinGrad)"/>
+
+        <!-- Hair back layer (for styles that need it) -->
+        ${hairStyle === 'long' || hairStyle === 'braids' ? `<ellipse cx="50" cy="38" rx="28" ry="24" fill="url(#hairGrad)"/>` : ''}
+
+        <!-- Face -->
+        <ellipse cx="50" cy="48" rx="22" ry="26" fill="url(#skinGrad)"/>
+
+        <!-- Hair -->
+        ${hairPath}
+
+        <!-- Eyes - friendly happy style -->
+        <path d="M36 48 Q40 44 44 48" stroke="#4A4A4A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 48 Q60 44 64 48" stroke="#4A4A4A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+        <!-- Rosy cheeks -->
+        <circle cx="34" cy="54" r="5" fill="#FFB5B5" opacity="0.4"/>
+        <circle cx="66" cy="54" r="5" fill="#FFB5B5" opacity="0.4"/>
+
+        <!-- Warm smile -->
+        <path d="M42 60 Q50 68 58 60" stroke="#E07070" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+        <!-- Subtle sparkle/highlight -->
+        <circle cx="72" cy="25" r="3" fill="white" opacity="0.6"/>
+        <circle cx="76" cy="30" r="1.5" fill="white" opacity="0.4"/>
+    </svg>`;
+}
+
+function getCustomAvatarSVG(size = 40) {
+    const { skinTone, hairColor, hairStyle } = AppState.user;
+    return generateCustomAvatarSVG(skinTone, hairColor, hairStyle, size);
+}
+
+function getAvatarName() {
+    return AppState.user.avatarName || 'Gal';
 }
 
 // ============================================
@@ -750,24 +908,24 @@ function initializeChat() {
     const chatToneSlider = document.getElementById('chatToneSlider');
     chatToneSlider.value = AppState.user.toneLevel;
 
-    // Render avatar in header
+    // Render custom avatar in header
     const headerAvatar = document.getElementById('headerAvatar');
     const headerTitle = document.getElementById('headerTitle');
-    const selectedAvatar = getSelectedAvatar();
+    const avatarName = getAvatarName();
 
-    if (headerAvatar && selectedAvatar) {
-        headerAvatar.innerHTML = getAvatarSVGById(selectedAvatar.id, 44);
+    if (headerAvatar) {
+        headerAvatar.innerHTML = getCustomAvatarSVG(44);
     }
 
-    // Update header title with avatar name
-    if (headerTitle && selectedAvatar) {
-        headerTitle.textContent = selectedAvatar.name;
+    // Update header title with custom avatar name
+    if (headerTitle) {
+        headerTitle.textContent = avatarName;
     }
 
     // Update typing indicator avatar
     const typingAvatar = document.querySelector('.typing-avatar');
-    if (typingAvatar && selectedAvatar) {
-        typingAvatar.innerHTML = getAvatarSVGById(selectedAvatar.id, 32);
+    if (typingAvatar) {
+        typingAvatar.innerHTML = getCustomAvatarSVG(32);
     }
 
     // Send welcome message
@@ -959,7 +1117,7 @@ async function generateResponse(userMessage) {
         try {
             showTypingIndicator();
 
-            const selectedAvatar = getSelectedAvatar();
+            const avatarName = getAvatarName();
             const context = {
                 toneLevel: AppState.user.toneLevel,
                 responseStyle: AppState.user.responseStyle,
@@ -968,7 +1126,7 @@ async function generateResponse(userMessage) {
                 belief: AppState.user.belief,
                 lifeStage: AppState.user.lifeStage,
                 userName: AppState.user.name,
-                avatarName: selectedAvatar?.name || 'Gal',
+                avatarName: avatarName,
                 history: AppState.conversation.slice(-10)
             };
 
@@ -1766,7 +1924,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPicker();
     initSituationCards();
     initPersonalization();
-    initAvatarSelection();
+    // Avatar creator is initialized when step 5 is shown
     initToneSlider();
     initChatInput();
     initSettings();
