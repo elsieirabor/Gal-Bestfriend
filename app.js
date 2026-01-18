@@ -239,72 +239,92 @@ function selectAvatarsForUser() {
     return scoredAvatars.slice(0, 3);
 }
 
-// Generate SVG avatar based on avatar data
+// Generate beautiful minimal avatar with gradient background and simple silhouette
 function generateAvatarSVG(avatar, size = 80) {
-    const { skinTone, hairColor, hairStyle, id } = avatar;
+    const { id, skinTone, hairColor } = avatar;
 
-    // Hair path varies by style
-    const hairPaths = {
-        curly: `<path d="M20 25c-2-8 2-15 10-18 8-3 18-2 24 3 6 5 8 12 6 20" fill="${hairColor}"/>
-                <circle cx="18" cy="28" r="6" fill="${hairColor}"/>
-                <circle cx="52" cy="26" r="5" fill="${hairColor}"/>
-                <circle cx="24" cy="18" r="5" fill="${hairColor}"/>
-                <circle cx="46" cy="16" r="5" fill="${hairColor}"/>
-                <circle cx="35" cy="12" r="6" fill="${hairColor}"/>`,
-        wavy: `<path d="M15 30c0-15 8-22 20-22s20 7 20 22c0 2-1 4-2 5h-36c-1-1-2-3-2-5z" fill="${hairColor}"/>
-               <path d="M15 35c-2 10 0 20 5 28h-2c-6-10-7-22-3-28z" fill="${hairColor}"/>
-               <path d="M55 35c2 10 0 20-5 28h2c6-10 7-22 3-28z" fill="${hairColor}"/>`,
-        straight: `<path d="M14 28c0-14 8-20 21-20s21 6 21 20v35h-8V45h-26v18h-8V28z" fill="${hairColor}"/>`,
-        braids: `<path d="M18 25c0-12 7-18 17-18s17 6 17 18" fill="${hairColor}"/>
-                 <path d="M12 30c0 0 2 35 4 45h4c-2-15-3-35-3-45" fill="${hairColor}"/>
-                 <path d="M58 30c0 0-2 35-4 45h-4c2-15 3-35 3-45" fill="${hairColor}"/>
-                 <rect x="14" y="28" width="5" height="40" rx="2" fill="${hairColor}"/>
-                 <rect x="51" y="28" width="5" height="40" rx="2" fill="${hairColor}"/>`,
-        locs: `<path d="M17 28c0-13 8-20 18-20s18 7 18 20" fill="${hairColor}"/>
-               <rect x="14" y="26" width="4" height="35" rx="2" fill="${hairColor}"/>
-               <rect x="20" y="24" width="4" height="38" rx="2" fill="${hairColor}"/>
-               <rect x="26" y="22" width="4" height="40" rx="2" fill="${hairColor}"/>
-               <rect x="40" y="22" width="4" height="40" rx="2" fill="${hairColor}"/>
-               <rect x="46" y="24" width="4" height="38" rx="2" fill="${hairColor}"/>
-               <rect x="52" y="26" width="4" height="35" rx="2" fill="${hairColor}"/>`,
-        bob: `<path d="M12 30c0-16 10-23 23-23s23 7 23 23c0 12-4 20-10 25h-26c-6-5-10-13-10-25z" fill="${hairColor}"/>`,
-        long: `<path d="M14 28c0-14 9-21 21-21s21 7 21 20v45h-10V50H24v22H14V28z" fill="${hairColor}"/>`,
-        shoulder: `<path d="M13 30c0-16 10-22 22-22s22 6 22 22c0 5-1 10-3 14l-8 20h-22l-8-20c-2-4-3-9-3-14z" fill="${hairColor}"/>`,
-        natural: `<path d="M10 32c0-18 12-27 25-27s25 9 25 27c0 10-3 18-8 24h-34c-5-6-8-14-8-24z" fill="${hairColor}"/>
-                  <circle cx="15" cy="25" r="5" fill="${hairColor}"/>
-                  <circle cx="55" cy="25" r="5" fill="${hairColor}"/>`,
-        elegant: `<path d="M15 35c2-18 10-25 20-25s18 7 20 25c1 5 0 10-2 14h-36c-2-4-3-9-2-14z" fill="${hairColor}"/>
-                  <ellipse cx="50" cy="25" rx="8" ry="12" fill="${hairColor}"/>`,
-        updo: `<path d="M18 35c0-12 7-18 17-18s17 6 17 18" fill="${hairColor}"/>
-               <ellipse cx="35" cy="12" rx="14" ry="10" fill="${hairColor}"/>
-               <circle cx="35" cy="8" r="8" fill="${hairColor}"/>`,
-        waves: `<path d="M12 32c0-16 10-24 23-24s23 8 23 24c0 8-2 15-6 20" fill="${hairColor}"/>
-                <path d="M12 32c-1 12 2 25 8 35h-4c-6-12-8-26-4-35z" fill="${hairColor}"/>
-                <path d="M58 32c1 12-2 25-8 35h4c6-12 8-26 4-35z" fill="${hairColor}"/>`
+    // Create beautiful gradient colors based on avatar properties
+    const gradients = {
+        maya: ['#FF9A9E', '#FECFEF', '#FECFEF'],
+        sofia: ['#A18CD1', '#FBC2EB', '#FBC2EB'],
+        lily: ['#96E6A1', '#D4FC79', '#D4FC79'],
+        zara: ['#667EEA', '#764BA2', '#764BA2'],
+        nina: ['#F093FB', '#F5576C', '#F5576C'],
+        elena: ['#4FACFE', '#00F2FE', '#00F2FE'],
+        priya: ['#43E97B', '#38F9D7', '#38F9D7'],
+        jade: ['#FA709A', '#FEE140', '#FEE140'],
+        grace: ['#A8EDEA', '#FED6E3', '#FED6E3'],
+        diana: ['#D299C2', '#FEF9D7', '#FEF9D7'],
+        mei: ['#89F7FE', '#66A6FF', '#66A6FF'],
+        carmen: ['#FDDB92', '#D1FDFF', '#D1FDFF']
     };
 
-    return `<svg viewBox="0 0 70 80" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    const colors = gradients[id] || ['#FF9A9E', '#FECFEF', '#FECFEF'];
+
+    return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad_${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="${colors[0]}"/>
+                <stop offset="100%" stop-color="${colors[1]}"/>
+            </linearGradient>
+            <linearGradient id="skinGrad_${id}" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="${lightenColor(skinTone, 20)}"/>
+                <stop offset="100%" stop-color="${skinTone}"/>
+            </linearGradient>
+            <linearGradient id="hairGrad_${id}" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="${lightenColor(hairColor, 30)}"/>
+                <stop offset="100%" stop-color="${hairColor}"/>
+            </linearGradient>
+        </defs>
+
+        <!-- Beautiful gradient background -->
+        <circle cx="50" cy="50" r="48" fill="url(#bgGrad_${id})"/>
+        <circle cx="50" cy="50" r="48" fill="white" opacity="0.1"/>
+
+        <!-- Subtle inner glow -->
+        <circle cx="50" cy="50" r="44" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+
+        <!-- Neck/Body hint -->
+        <ellipse cx="50" cy="95" rx="18" ry="15" fill="url(#skinGrad_${id})"/>
+
         <!-- Hair back -->
-        ${hairPaths[hairStyle] || hairPaths.wavy}
+        <ellipse cx="50" cy="38" rx="28" ry="24" fill="url(#hairGrad_${id})"/>
+
         <!-- Face -->
-        <ellipse cx="35" cy="42" rx="18" ry="22" fill="${skinTone}"/>
-        <!-- Eyes -->
-        <ellipse cx="28" cy="40" rx="3" ry="2" fill="#2d2d2d"/>
-        <ellipse cx="42" cy="40" rx="3" ry="2" fill="#2d2d2d"/>
-        <!-- Eye shine -->
-        <circle cx="29" cy="39" r="1" fill="white" opacity="0.7"/>
-        <circle cx="43" cy="39" r="1" fill="white" opacity="0.7"/>
-        <!-- Eyebrows -->
-        <path d="M24 35 Q28 33 32 35" stroke="#4a4a4a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        <path d="M38 35 Q42 33 46 35" stroke="#4a4a4a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        <!-- Nose -->
-        <path d="M35 44 Q37 48 35 50" stroke="${skinTone}" stroke-width="2" fill="none" filter="brightness(0.9)"/>
+        <ellipse cx="50" cy="48" rx="22" ry="26" fill="url(#skinGrad_${id})"/>
+
+        <!-- Hair front/bangs -->
+        <path d="M28 38 Q30 28 50 26 Q70 28 72 38 Q68 32 50 30 Q32 32 28 38" fill="url(#hairGrad_${id})"/>
+
+        <!-- Eyes - friendly closed/happy style -->
+        <path d="M36 48 Q40 44 44 48" stroke="#4A4A4A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 48 Q60 44 64 48" stroke="#4A4A4A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+        <!-- Rosy cheeks -->
+        <circle cx="34" cy="54" r="5" fill="#FFB5B5" opacity="0.4"/>
+        <circle cx="66" cy="54" r="5" fill="#FFB5B5" opacity="0.4"/>
+
         <!-- Warm smile -->
-        <path d="M28 54 Q35 60 42 54" stroke="#c96b6b" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <!-- Subtle blush -->
-        <ellipse cx="24" cy="50" rx="4" ry="2" fill="#ffb6c1" opacity="0.3"/>
-        <ellipse cx="46" cy="50" rx="4" ry="2" fill="#ffb6c1" opacity="0.3"/>
+        <path d="M42 60 Q50 68 58 60" stroke="#E07070" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+        <!-- Subtle sparkle/highlight -->
+        <circle cx="72" cy="25" r="3" fill="white" opacity="0.6"/>
+        <circle cx="76" cy="30" r="1.5" fill="white" opacity="0.4"/>
     </svg>`;
+}
+
+// Helper function to lighten a hex color
+function lightenColor(hex, amount) {
+    hex = hex.replace('#', '');
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+
+    r = Math.min(255, r + amount);
+    g = Math.min(255, g + amount);
+    b = Math.min(255, b + amount);
+
+    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
 // Tone level descriptions for preview

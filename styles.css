@@ -204,7 +204,7 @@ body {
     display: none;
     position: relative;
     z-index: 1;
-    min-height: 100vh;
+    min-height: auto;
     opacity: 0;
     transition: opacity var(--transition-slow);
 }
@@ -220,14 +220,14 @@ body {
    ============================================ */
 
 #landing {
-    padding: var(--space-lg) var(--space-xl);
+    padding: var(--space-md) var(--space-xl) var(--space-lg);
 }
 
 .landing-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-3xl);
+    margin-bottom: var(--space-xl);
 }
 
 .logo {
@@ -271,12 +271,11 @@ body {
 .landing-hero {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-3xl);
+    gap: var(--space-xl);
     align-items: center;
-    flex: 1;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 var(--space-xl);
+    padding: 0 var(--space-lg);
 }
 
 .hero-content {
@@ -426,8 +425,8 @@ body {
     display: flex;
     justify-content: center;
     gap: var(--space-2xl);
-    padding: var(--space-2xl) 0;
-    margin-top: auto;
+    padding: var(--space-lg) 0;
+    margin-top: var(--space-lg);
 }
 
 .trust-item {
