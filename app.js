@@ -47,9 +47,9 @@ const tonePreviewTexts = {
 // AI response templates based on tone and context
 const responseTemplates = {
     greeting: {
-        gentle: (name) => `Hi ${name}! I'm so glad you're here. This is a completely safe space — no judgment, just support. What's been on your mind?`,
-        balanced: (name) => `Hey ${name}! I'm here to listen and help however I can. What's going on?`,
-        direct: (name) => `Hey ${name}. Let's get into it — what's happening?`
+        gentle: (name) => `Hi ${name}! I'm Gia, and I'm so glad you're here. This is a completely safe space — no judgment, just support. What's been on your mind?`,
+        balanced: (name) => `Hey ${name}! I'm Gia — I'm here to listen and help however I can. What's going on?`,
+        direct: (name) => `Hey ${name}. I'm Gia. Let's get into it — what's happening?`
     },
     situations: {
         friendship: {
@@ -82,6 +82,67 @@ const responseTemplates = {
         }
     }
 };
+
+// ============================================
+// CRISIS DETECTION & SUPPORT
+// ============================================
+
+const crisisKeywords = [
+    'suicide', 'suicidal', 'kill myself', 'end my life', 'want to die',
+    'don\'t want to live', 'dont want to live', 'better off dead',
+    'no reason to live', 'can\'t go on', 'cant go on', 'end it all',
+    'self harm', 'self-harm', 'hurt myself', 'cutting myself',
+    'overdose', 'take my life', 'not worth living', 'give up on life'
+];
+
+function detectCrisis(message) {
+    const lower = message.toLowerCase();
+    return crisisKeywords.some(keyword => lower.includes(keyword));
+}
+
+function showCrisisSupport() {
+    const messagesContainer = document.getElementById('chatMessages');
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const crisisMessage = document.createElement('div');
+    crisisMessage.className = 'message ai crisis-support';
+    crisisMessage.innerHTML = `
+        <div class="message-content crisis-content">
+            <p><strong>I'm really glad you told me this.</strong> What you're feeling is real, and you don't have to go through it alone.</p>
+            <p>I care about you, and I want to make sure you have support beyond our conversation. Please reach out to one of these resources — they're free, confidential, and available 24/7:</p>
+            <div class="crisis-resources">
+                <a href="tel:988" class="crisis-link">
+                    <span class="crisis-icon">📞</span>
+                    <span><strong>988 Suicide & Crisis Lifeline</strong><br>Call or text 988</span>
+                </a>
+                <a href="sms:741741?body=HOME" class="crisis-link">
+                    <span class="crisis-icon">💬</span>
+                    <span><strong>Crisis Text Line</strong><br>Text HOME to 741741</span>
+                </a>
+            </div>
+            <p style="margin-top: 12px; font-size: 0.9em;">These are real people who understand what you're going through. You matter, and your life matters.</p>
+            <p>I'm still here to talk. Would you like to tell me more about what's been going on?</p>
+        </div>
+        <div class="message-meta">
+            <span class="meta-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+            </span>
+            <span>${timestamp}</span>
+        </div>
+    `;
+
+    messagesContainer.appendChild(crisisMessage);
+    scrollToBottom();
+
+    // Add to conversation history
+    AppState.conversation.push({
+        role: 'ai',
+        content: '[Crisis support resources provided]',
+        timestamp
+    });
+}
 
 // ============================================
 // SCREEN NAVIGATION
@@ -570,6 +631,16 @@ function sendMessage() {
 // ============================================
 
 async function generateResponse(userMessage) {
+    // Check for crisis keywords first - show support resources immediately
+    if (detectCrisis(userMessage)) {
+        showTypingIndicator();
+        setTimeout(() => {
+            hideTypingIndicator();
+            showCrisisSupport();
+        }, 1000);
+        return; // Still let the AI respond after, but show resources first
+    }
+
     // Check if external AI is connected
     if (window.externalAIHandler) {
         try {

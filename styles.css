@@ -1260,6 +1260,46 @@ html, body {
     border-bottom-left-radius: var(--radius-sm);
 }
 
+/* Crisis Support Message */
+.message.crisis-support .crisis-content {
+    background: linear-gradient(135deg, #FFF5F5 0%, #FFF0F5 100%);
+    border: 2px solid #E8A0A0;
+}
+
+.crisis-resources {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin: var(--space-md) 0;
+}
+
+.crisis-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: white;
+    border: 1px solid var(--blush);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all var(--transition-base);
+}
+
+.crisis-link:hover {
+    border-color: var(--burgundy);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.crisis-icon {
+    font-size: 1.5rem;
+}
+
+.crisis-link strong {
+    color: var(--burgundy);
+}
+
 .message-meta {
     display: flex;
     align-items: center;
