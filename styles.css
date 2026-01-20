@@ -450,6 +450,127 @@ html, body {
     font-size: 1rem;
 }
 
+/* Landing About Section */
+.landing-about {
+    padding: var(--space-3xl) var(--space-xl);
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.about-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 500;
+    color: var(--burgundy-deep);
+    margin-bottom: var(--space-md);
+}
+
+.about-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-2xl);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+}
+
+.feature-card {
+    padding: var(--space-xl);
+    background: var(--warm-white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--blush);
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--rose);
+}
+
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--blush) 0%, var(--rose-light) 100%);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-md);
+    color: var(--burgundy);
+}
+
+.feature-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.feature-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--burgundy-deep);
+    margin-bottom: var(--space-sm);
+}
+
+.feature-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.about-cta {
+    margin-top: var(--space-xl);
+}
+
+/* Landing Footer */
+.landing-footer {
+    padding: var(--space-xl) var(--space-lg);
+    text-align: center;
+    border-top: 1px solid var(--blush);
+    margin-top: var(--space-xl);
+}
+
+.landing-footer p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-sm);
+}
+
+.landing-footer .footer-note {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Mobile responsive for about section */
+@media (max-width: 768px) {
+    .landing-about {
+        padding: var(--space-2xl) var(--space-md);
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .feature-card {
+        padding: var(--space-lg);
+    }
+
+    .about-description {
+        font-size: 1rem;
+    }
+}
+
 /* ============================================
    ONBOARDING SCREEN
    ============================================ */
@@ -1298,6 +1419,68 @@ html, body {
 
 .crisis-link strong {
     color: var(--burgundy);
+}
+
+/* Emoji Reactions */
+.message-reactions {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    opacity: 0.7;
+    transition: opacity var(--transition-base);
+}
+
+.message.ai:hover .message-reactions,
+.message-reactions:focus-within {
+    opacity: 1;
+}
+
+.reaction-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: var(--cream);
+    border: 1px solid var(--blush);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.reaction-btn:hover {
+    transform: scale(1.15);
+    background: var(--warm-white);
+    border-color: var(--rose);
+}
+
+.reaction-btn.reacted {
+    background: var(--blush);
+    border-color: var(--rose);
+    transform: scale(1.1);
+}
+
+.reaction-emoji {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+/* Mobile touch-friendly reactions */
+@media (max-width: 640px) {
+    .message-reactions {
+        opacity: 1;
+        margin-top: var(--space-xs);
+    }
+
+    .reaction-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .reaction-emoji {
+        font-size: 1rem;
+    }
 }
 
 .message-meta {

@@ -145,6 +145,43 @@ function showCrisisSupport() {
 }
 
 // ============================================
+// EMOJI REACTIONS
+// ============================================
+
+function addReaction(messageId, reaction) {
+    const messageEl = document.getElementById(messageId);
+    if (!messageEl) return;
+
+    const reactionBtn = messageEl.querySelector(`[data-reaction="${reaction}"]`);
+    const reactionsContainer = messageEl.querySelector('.message-reactions');
+
+    // Check if already reacted with this emoji
+    if (reactionBtn.classList.contains('reacted')) {
+        // Remove reaction
+        reactionBtn.classList.remove('reacted');
+    } else {
+        // Remove other reactions from this message
+        reactionsContainer.querySelectorAll('.reaction-btn').forEach(btn => {
+            btn.classList.remove('reacted');
+        });
+
+        // Add this reaction
+        reactionBtn.classList.add('reacted');
+
+        // Haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+
+        // Small bounce animation
+        reactionBtn.style.transform = 'scale(1.3)';
+        setTimeout(() => {
+            reactionBtn.style.transform = '';
+        }, 150);
+    }
+}
+
+// ============================================
 // SCREEN NAVIGATION
 // ============================================
 
@@ -502,6 +539,7 @@ function addUserMessage(text) {
 function addAIMessage(text, showValidation = false) {
     const messagesContainer = document.getElementById('chatMessages');
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const messageId = `msg-${Date.now()}`;
 
     // Show typing indicator
     showTypingIndicator();
@@ -514,9 +552,24 @@ function addAIMessage(text, showValidation = false) {
 
         const messageEl = document.createElement('div');
         messageEl.className = 'message ai';
+        messageEl.id = messageId;
         messageEl.innerHTML = `
             <div class="message-content">
                 <p>${text}</p>
+            </div>
+            <div class="message-reactions">
+                <button class="reaction-btn" data-reaction="love" onclick="addReaction('${messageId}', 'love')">
+                    <span class="reaction-emoji">❤️</span>
+                </button>
+                <button class="reaction-btn" data-reaction="helpful" onclick="addReaction('${messageId}', 'helpful')">
+                    <span class="reaction-emoji">💡</span>
+                </button>
+                <button class="reaction-btn" data-reaction="hug" onclick="addReaction('${messageId}', 'hug')">
+                    <span class="reaction-emoji">🤗</span>
+                </button>
+                <button class="reaction-btn" data-reaction="thanks" onclick="addReaction('${messageId}', 'thanks')">
+                    <span class="reaction-emoji">🙏</span>
+                </button>
             </div>
             <div class="message-meta">
                 <span class="meta-icon">
@@ -532,7 +585,7 @@ function addAIMessage(text, showValidation = false) {
         scrollToBottom();
 
         // Add to conversation history
-        AppState.conversation.push({ role: 'ai', content: text, timestamp });
+        AppState.conversation.push({ role: 'ai', content: text, timestamp, id: messageId });
 
         // Show validation modal if requested
         if (showValidation) {
@@ -687,12 +740,28 @@ async function generateResponse(userMessage) {
 function addAIMessageDirect(text) {
     const messagesContainer = document.getElementById('chatMessages');
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const messageId = `msg-${Date.now()}`;
 
     const messageEl = document.createElement('div');
     messageEl.className = 'message ai';
+    messageEl.id = messageId;
     messageEl.innerHTML = `
         <div class="message-content">
             <p>${text}</p>
+        </div>
+        <div class="message-reactions">
+            <button class="reaction-btn" data-reaction="love" onclick="addReaction('${messageId}', 'love')">
+                <span class="reaction-emoji">❤️</span>
+            </button>
+            <button class="reaction-btn" data-reaction="helpful" onclick="addReaction('${messageId}', 'helpful')">
+                <span class="reaction-emoji">💡</span>
+            </button>
+            <button class="reaction-btn" data-reaction="hug" onclick="addReaction('${messageId}', 'hug')">
+                <span class="reaction-emoji">🤗</span>
+            </button>
+            <button class="reaction-btn" data-reaction="thanks" onclick="addReaction('${messageId}', 'thanks')">
+                <span class="reaction-emoji">🙏</span>
+            </button>
         </div>
         <div class="message-meta">
             <span class="meta-icon">
@@ -708,7 +777,7 @@ function addAIMessageDirect(text) {
     scrollToBottom();
 
     // Add to conversation history
-    AppState.conversation.push({ role: 'ai', content: text, timestamp });
+    AppState.conversation.push({ role: 'ai', content: text, timestamp, id: messageId });
 }
 
 // ============================================
