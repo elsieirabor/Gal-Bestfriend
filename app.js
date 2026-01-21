@@ -44,6 +44,66 @@ const tonePreviewTexts = {
     5: `"Real talk? I'm going to be honest with you because I care. Let's look at what's really going on here."`
 };
 
+// Daily motivational quotes
+const motivationalQuotes = [
+    "You are allowed to be both a masterpiece and a work in progress at the same time.",
+    "The way you speak to yourself matters. Be kind, girl.",
+    "You don't have to set yourself on fire to keep others warm.",
+    "Healing isn't linear, and that's okay. You're still moving forward.",
+    "Your peace is worth more than their approval.",
+    "You survived 100% of your worst days. That's a pretty good track record.",
+    "Boundaries aren't walls — they're the gates to healthier relationships.",
+    "You can't pour from an empty cup. Rest is productive too.",
+    "The right people won't make you feel like you're too much.",
+    "Growth is uncomfortable, but so is staying stuck. Choose your discomfort.",
+    "You're not difficult to love. You just haven't found your people yet.",
+    "Stop dimming your light so others feel comfortable. Shine anyway.",
+    "Your feelings are valid even if others don't understand them.",
+    "The only person you need permission from is yourself.",
+    "Some chapters need to close for better ones to open.",
+    "You attract what you believe you deserve. Believe in better.",
+    "It's okay to outgrow people, places, and old versions of yourself.",
+    "Your worth isn't measured by your productivity.",
+    "Closure is something you give yourself.",
+    "You're not behind in life. You're on your own timeline."
+];
+
+// Fun jokes and light moments
+const friendlyJokes = [
+    "Why did the girl bring a ladder to her relationship? Because she wanted to take it to the next level! 😄",
+    "What did one bestie say to the other? 'You're the avocado to my toast — a little extra, but I love you.' 🥑",
+    "Why don't relationship problems ever get solved at night? Because they're always sleeping on it! 😴",
+    "What's a therapist's favorite type of music? Something with good closure. 🎵",
+    "I told my plants about my relationship problems. Now they're growing drama leaves. 🌱",
+    "Why did the boundary go to therapy? It kept getting crossed! 😅",
+    "What do you call a friend who always has your back? Rare. And that's you! 💕",
+    "My love language is someone remembering what I said three conversations ago. Is that too much to ask? 👀",
+    "They say communication is key. But have you tried sending memes? Much easier. 📱",
+    "Plot twist: You were the main character this whole time. 💫"
+];
+
+// Warm welcome back messages for returning users
+const welcomeBackMessages = {
+    gentle: (name) => [
+        `Hey ${name}! I've missed you 💕 How have you been? I'm here whenever you need me.`,
+        `${name}! So good to see you back. I was thinking about you. How's everything going?`,
+        `Welcome back, ${name}! I'm always here for you. What's on your heart today?`,
+        `Hi ${name} 💕 It's been a minute! How are you doing, really?`
+    ],
+    balanced: (name) => [
+        `Hey girl, I've missed you! ${name}, how've you been? Catch me up!`,
+        `${name}! Look who's back 💕 Tell me everything — what's new?`,
+        `Hey ${name}! Missed your face around here. What's been going on?`,
+        `${name}! Finally! I was wondering when you'd pop in. How are you?`
+    ],
+    direct: (name) => [
+        `${name}! There she is. Missed you. What's the tea?`,
+        `Hey ${name}, welcome back! Alright, what's happening? Spill.`,
+        `${name}! About time 😄 I'm ready. What do you need to talk about?`,
+        `Look who showed up! Hey ${name}. What's going on in your world?`
+    ]
+};
+
 // AI response templates based on tone and context
 const responseTemplates = {
     greeting: {
@@ -484,21 +544,78 @@ function initializeChat() {
     const chatToneSlider = document.getElementById('chatToneSlider');
     chatToneSlider.value = AppState.user.toneLevel;
 
+    // Check if returning user
+    const isReturningUser = checkReturningUser();
+    const toneKey = getToneKey(AppState.user.toneLevel);
+
     // Send welcome message
     setTimeout(() => {
-        const toneKey = getToneKey(AppState.user.toneLevel);
-        const greeting = responseTemplates.greeting[toneKey](AppState.user.name);
+        let greeting;
+
+        if (isReturningUser) {
+            // Returning user - warm welcome back
+            const welcomeOptions = welcomeBackMessages[toneKey](AppState.user.name);
+            greeting = welcomeOptions[Math.floor(Math.random() * welcomeOptions.length)];
+        } else {
+            // New user - standard intro
+            greeting = responseTemplates.greeting[toneKey](AppState.user.name);
+        }
+
         addAIMessage(greeting);
 
-        // Follow up with situation-specific prompt
+        // Follow up message
         setTimeout(() => {
-            const situationPrompts = responseTemplates.situations[AppState.user.situation]?.prompts || [];
-            if (situationPrompts.length > 0) {
-                const randomPrompt = situationPrompts[Math.floor(Math.random() * situationPrompts.length)];
-                addAIMessage(randomPrompt);
+            if (isReturningUser) {
+                // For returning users, sometimes share a quote or joke
+                const messageType = Math.random();
+
+                if (messageType < 0.4) {
+                    // 40% chance: motivational quote
+                    const quote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+                    addAIMessage(`Today's thought for you: "${quote}"\n\nAnyway, what's going on? I'm all ears.`);
+                } else if (messageType < 0.55) {
+                    // 15% chance: joke to lighten the mood
+                    const joke = friendlyJokes[Math.floor(Math.random() * friendlyJokes.length)];
+                    addAIMessage(`Okay but first — ${joke}\n\nAlright, I'm ready. What's on your mind?`);
+                } else {
+                    // 45% chance: just ask what's up
+                    const casualFollowups = [
+                        "So what's been happening? Any updates on the stuff we talked about, or is this something new?",
+                        "I'm here for whatever you need — vent session, advice, or just company. What sounds good?",
+                        "Tell me what's going on. The good, the bad, or the 'girl, you won't believe this' — I want to hear it all.",
+                        "What's on your mind today? I've got time and zero judgment."
+                    ];
+                    addAIMessage(casualFollowups[Math.floor(Math.random() * casualFollowups.length)]);
+                }
+            } else {
+                // New user - situation-specific prompt
+                const situationPrompts = responseTemplates.situations[AppState.user.situation]?.prompts || [];
+                if (situationPrompts.length > 0) {
+                    const randomPrompt = situationPrompts[Math.floor(Math.random() * situationPrompts.length)];
+                    addAIMessage(randomPrompt);
+                }
             }
         }, 1500);
     }, 800);
+
+    // Mark this visit
+    markUserVisit();
+}
+
+function checkReturningUser() {
+    const lastVisit = localStorage.getItem('gal_lastVisit');
+    if (!lastVisit) return false;
+
+    const lastVisitDate = new Date(lastVisit);
+    const now = new Date();
+    const hoursSinceVisit = (now - lastVisitDate) / (1000 * 60 * 60);
+
+    // Consider returning if they've visited before and it's been at least 1 hour
+    return hoursSinceVisit >= 1;
+}
+
+function markUserVisit() {
+    localStorage.setItem('gal_lastVisit', new Date().toISOString());
 }
 
 function getToneKey(level) {
