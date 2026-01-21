@@ -467,7 +467,48 @@
                 <button class="quick-prompt" data-prompt="What should I say to them?">What to say</button>
                 <button class="quick-prompt" data-prompt="Am I overreacting?">Am I overreacting?</button>
             </div>
+            <!-- Emoji Picker Panel -->
+            <div class="emoji-picker" id="emojiPicker">
+                <div class="emoji-category">
+                    <span class="emoji-category-label">Feelings</span>
+                    <div class="emoji-grid">
+                        <button class="emoji-btn" data-emoji="😊">😊</button>
+                        <button class="emoji-btn" data-emoji="😢">😢</button>
+                        <button class="emoji-btn" data-emoji="😤">😤</button>
+                        <button class="emoji-btn" data-emoji="😔">😔</button>
+                        <button class="emoji-btn" data-emoji="🥺">🥺</button>
+                        <button class="emoji-btn" data-emoji="😭">😭</button>
+                        <button class="emoji-btn" data-emoji="😅">😅</button>
+                        <button class="emoji-btn" data-emoji="🙄">🙄</button>
+                        <button class="emoji-btn" data-emoji="😩">😩</button>
+                        <button class="emoji-btn" data-emoji="🤔">🤔</button>
+                        <button class="emoji-btn" data-emoji="😍">😍</button>
+                        <button class="emoji-btn" data-emoji="🥰">🥰</button>
+                    </div>
+                </div>
+                <div class="emoji-category">
+                    <span class="emoji-category-label">Reactions</span>
+                    <div class="emoji-grid">
+                        <button class="emoji-btn" data-emoji="💕">💕</button>
+                        <button class="emoji-btn" data-emoji="💔">💔</button>
+                        <button class="emoji-btn" data-emoji="✨">✨</button>
+                        <button class="emoji-btn" data-emoji="🙏">🙏</button>
+                        <button class="emoji-btn" data-emoji="💪">💪</button>
+                        <button class="emoji-btn" data-emoji="🤗">🤗</button>
+                        <button class="emoji-btn" data-emoji="👀">👀</button>
+                        <button class="emoji-btn" data-emoji="🫠">🫠</button>
+                        <button class="emoji-btn" data-emoji="😬">😬</button>
+                        <button class="emoji-btn" data-emoji="🤷‍♀️">🤷‍♀️</button>
+                        <button class="emoji-btn" data-emoji="💯">💯</button>
+                        <button class="emoji-btn" data-emoji="🚩">🚩</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="input-wrapper">
+                <button class="emoji-toggle-btn" id="emojiToggle" onclick="toggleEmojiPicker()" title="Add emoji">
+                    <span>😊</span>
+                </button>
                 <textarea
                     id="chatInput"
                     class="chat-textarea"

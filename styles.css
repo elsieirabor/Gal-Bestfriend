@@ -1565,6 +1565,132 @@ html, body {
     padding: var(--space-md) var(--space-lg) var(--space-lg);
     background: var(--surface-elevated);
     border-top: 1px solid var(--blush);
+    position: relative;
+}
+
+/* Emoji Picker */
+.emoji-picker {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: var(--space-lg);
+    right: var(--space-lg);
+    background: var(--warm-white);
+    border: 1px solid var(--blush);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.emoji-picker.active {
+    display: block;
+    animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.emoji-category {
+    margin-bottom: var(--space-sm);
+}
+
+.emoji-category:last-child {
+    margin-bottom: 0;
+}
+
+.emoji-category-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-xs);
+}
+
+.emoji-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.emoji-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.emoji-btn:hover {
+    background: var(--blush);
+    transform: scale(1.15);
+}
+
+.emoji-btn:active {
+    transform: scale(0.95);
+}
+
+.emoji-toggle-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.emoji-toggle-btn:hover {
+    background: var(--blush);
+}
+
+.emoji-toggle-btn.active {
+    background: var(--blush);
+}
+
+/* Mobile emoji picker */
+@media (max-width: 640px) {
+    .emoji-picker {
+        left: var(--space-sm);
+        right: var(--space-sm);
+        max-height: 180px;
+    }
+
+    .emoji-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+    }
+
+    .emoji-toggle-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
 }
 
 .quick-prompts {

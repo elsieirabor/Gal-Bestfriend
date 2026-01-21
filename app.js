@@ -205,6 +205,81 @@ function showCrisisSupport() {
 }
 
 // ============================================
+// EMOJI PICKER (for user messages)
+// ============================================
+
+function initEmojiPicker() {
+    const emojiPicker = document.getElementById('emojiPicker');
+    const textarea = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    if (!emojiPicker) return;
+
+    // Add click handlers to all emoji buttons
+    emojiPicker.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const emoji = btn.dataset.emoji;
+            insertEmoji(emoji);
+
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+    });
+
+    // Close emoji picker when clicking outside
+    document.addEventListener('click', (e) => {
+        const emojiToggle = document.getElementById('emojiToggle');
+        if (!emojiPicker.contains(e.target) && e.target !== emojiToggle && !emojiToggle.contains(e.target)) {
+            closeEmojiPicker();
+        }
+    });
+}
+
+function toggleEmojiPicker() {
+    const emojiPicker = document.getElementById('emojiPicker');
+    const emojiToggle = document.getElementById('emojiToggle');
+
+    if (emojiPicker.classList.contains('active')) {
+        closeEmojiPicker();
+    } else {
+        emojiPicker.classList.add('active');
+        emojiToggle.classList.add('active');
+    }
+}
+
+function closeEmojiPicker() {
+    const emojiPicker = document.getElementById('emojiPicker');
+    const emojiToggle = document.getElementById('emojiToggle');
+
+    emojiPicker.classList.remove('active');
+    emojiToggle.classList.remove('active');
+}
+
+function insertEmoji(emoji) {
+    const textarea = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Get cursor position
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+
+    // Insert emoji at cursor position
+    textarea.value = text.substring(0, start) + emoji + text.substring(end);
+
+    // Move cursor after emoji
+    textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+
+    // Trigger input event to update send button state
+    textarea.dispatchEvent(new Event('input'));
+
+    // Focus textarea
+    textarea.focus();
+}
+
+// ============================================
 // EMOJI REACTIONS
 // ============================================
 
@@ -766,6 +841,9 @@ function initChatInput() {
             }
         }
     });
+
+    // Initialize emoji picker
+    initEmojiPicker();
 
     // Quick prompts
     document.querySelectorAll('.quick-prompt').forEach(btn => {
