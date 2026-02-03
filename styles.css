@@ -130,8 +130,12 @@ body {
     overflow-x: hidden;
 }
 
-html, body {
+html {
     height: 100%;
+}
+
+body {
+    min-height: 100%;
 }
 
 /* Allow scrolling on all screens */
@@ -213,7 +217,8 @@ html, body {
     display: none;
     position: relative;
     z-index: 1;
-    min-height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
     opacity: 0;
     transition: opacity var(--transition-slow);
 }
@@ -535,7 +540,7 @@ html, body {
     padding: var(--space-xl) var(--space-lg);
     text-align: center;
     border-top: 1px solid var(--blush);
-    margin-top: var(--space-xl);
+    margin-top: auto;
 }
 
 .landing-footer p {
@@ -2135,8 +2140,6 @@ html, body {
     }
 
     .screen {
-        min-height: 100vh;
-        min-height: 100dvh;
         justify-content: flex-start;
     }
 
