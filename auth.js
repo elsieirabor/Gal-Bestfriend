@@ -110,6 +110,10 @@ async function handleAuthStateChange(event, session) {
 // Sign up with email and password
 async function signUpWithEmail(email, password, displayName) {
     const supabase = window.supabaseClient;
+    if (!supabase) {
+        showAuthError('Connection error. Please refresh the page and try again.');
+        return { success: false };
+    }
     showAuthLoading(true);
     hideAuthError();
 
@@ -144,6 +148,10 @@ async function signUpWithEmail(email, password, displayName) {
 // Sign in with email and password
 async function signInWithEmail(email, password) {
     const supabase = window.supabaseClient;
+    if (!supabase) {
+        showAuthError('Connection error. Please refresh the page and try again.');
+        return { success: false };
+    }
     showAuthLoading(true);
     hideAuthError();
 
@@ -168,6 +176,10 @@ async function signInWithEmail(email, password) {
 // Sign in with Google
 async function signInWithGoogle() {
     const supabase = window.supabaseClient;
+    if (!supabase) {
+        showAuthError('Connection error. Please refresh the page and try again.');
+        return { success: false };
+    }
     showAuthLoading(true);
     hideAuthError();
 
