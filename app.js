@@ -22,7 +22,11 @@ const AppState = {
     },
     conversation: [],
     isTyping: false,
-    pendingResponse: null
+    pendingResponse: null,
+    // Auth state
+    isAuthenticated: false,
+    userId: null,
+    currentConversationId: null
 };
 
 // Color theme definitions for mood boosting
@@ -347,11 +351,44 @@ function showScreen(screenId) {
 
     // Initialize screen-specific logic
     if (screenId === 'chat') {
+        // Set guest mode class if not authenticated
+        const chatSection = document.getElementById('chat');
+        if (!AppState.isAuthenticated) {
+            chatSection.classList.add('guest-mode');
+        } else {
+            chatSection.classList.remove('guest-mode');
+        }
+
+        // Update disclaimer text
+        const disclaimer = document.getElementById('inputDisclaimer');
+        if (disclaimer) {
+            disclaimer.textContent = AppState.isAuthenticated
+                ? 'Your conversations are securely stored in your account.'
+                : 'Your conversations are private and not stored.';
+        }
+
         initializeChat();
+    }
+
+    // Initialize auth screen
+    if (screenId === 'auth') {
+        if (typeof initAuthForms === 'function') {
+            initAuthForms();
+        }
     }
 
     // Initialize onboarding if entering
     if (screenId === 'onboarding') {
+        // If authenticated and name is from Google, pre-fill name field
+        if (AppState.isAuthenticated && AppState.user.name) {
+            const nameInput = document.getElementById('userName');
+            if (nameInput) {
+                nameInput.value = AppState.user.name;
+                const step1Btn = document.getElementById('step1Btn');
+                if (step1Btn) step1Btn.disabled = false;
+            }
+        }
+
         // Focus first input for better mobile UX
         setTimeout(() => {
             const nameInput = document.getElementById('userName');
@@ -367,7 +404,7 @@ function goBack() {
     if (AppState.currentStep > 1) {
         showStep(AppState.currentStep - 1);
     } else {
-        showScreen('landing');
+        showScreen(AppState.isAuthenticated ? 'chat' : 'landing');
     }
 }
 
@@ -414,6 +451,12 @@ function startChat() {
 
     // Apply the selected color theme
     applyColorTheme(AppState.user.colorTheme);
+
+    // Save profile to Supabase if authenticated
+    if (AppState.isAuthenticated && AppState.userId) {
+        saveUserProfile(AppState.userId).catch(err => console.error('Error saving profile:', err));
+        markOnboardingComplete(AppState.userId).catch(err => console.error('Error marking onboarding:', err));
+    }
 
     // Transition to chat
     showScreen('chat');
@@ -609,15 +652,32 @@ function initToneSlider() {
 // CHAT FUNCTIONALITY
 // ============================================
 
-function initializeChat() {
-    // Clear previous messages
+async function initializeChat() {
     const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = '';
-    AppState.conversation = [];
 
     // Sync tone slider in settings
     const chatToneSlider = document.getElementById('chatToneSlider');
     chatToneSlider.value = AppState.user.toneLevel;
+
+    // If authenticated, check for existing conversation with messages
+    if (AppState.isAuthenticated && AppState.currentConversationId && AppState.conversation.length > 0) {
+        // Render existing messages from loaded conversation
+        renderConversationMessages();
+        markUserVisit();
+        return;
+    }
+
+    // If authenticated and no current conversation, create one
+    if (AppState.isAuthenticated && AppState.userId && !AppState.currentConversationId) {
+        const convoId = await createConversation(AppState.userId);
+        if (convoId) {
+            AppState.currentConversationId = convoId;
+        }
+    }
+
+    // Clear previous messages for fresh chat
+    messagesContainer.innerHTML = '';
+    AppState.conversation = [];
 
     // Check if returning user
     const isReturningUser = checkReturningUser();
@@ -725,6 +785,21 @@ function addUserMessage(text) {
     // Add to conversation history
     AppState.conversation.push({ role: 'user', content: text, timestamp });
 
+    // Persist to Supabase (fire-and-forget)
+    if (AppState.isAuthenticated && AppState.currentConversationId) {
+        saveMessage(AppState.currentConversationId, 'user', text).catch(err =>
+            console.error('Failed to save user message:', err)
+        );
+
+        // Auto-title conversation on first user message
+        const userMessages = AppState.conversation.filter(m => m.role === 'user');
+        if (userMessages.length === 1) {
+            autoTitleConversation(AppState.currentConversationId, text).catch(err =>
+                console.error('Failed to auto-title:', err)
+            );
+        }
+    }
+
     return messageEl;
 }
 
@@ -778,6 +853,13 @@ function addAIMessage(text, showValidation = false) {
 
         // Add to conversation history
         AppState.conversation.push({ role: 'ai', content: text, timestamp, id: messageId });
+
+        // Persist to Supabase (fire-and-forget)
+        if (AppState.isAuthenticated && AppState.currentConversationId) {
+            saveMessage(AppState.currentConversationId, 'ai', text).catch(err =>
+                console.error('Failed to save AI message:', err)
+            );
+        }
 
         // Show validation modal if requested
         if (showValidation) {
@@ -973,6 +1055,13 @@ function addAIMessageDirect(text) {
 
     // Add to conversation history
     AppState.conversation.push({ role: 'ai', content: text, timestamp, id: messageId });
+
+    // Persist to Supabase (fire-and-forget)
+    if (AppState.isAuthenticated && AppState.currentConversationId) {
+        saveMessage(AppState.currentConversationId, 'ai', text).catch(err =>
+            console.error('Failed to save AI direct message:', err)
+        );
+    }
 }
 
 // ============================================
@@ -1513,6 +1602,7 @@ function initSettings() {
     const chatToneSlider = document.getElementById('chatToneSlider');
     chatToneSlider.addEventListener('input', (e) => {
         AppState.user.toneLevel = parseInt(e.target.value);
+        saveState();
     });
 
     // Style buttons
@@ -1521,6 +1611,7 @@ function initSettings() {
             document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             AppState.user.responseStyle = btn.dataset.style;
+            saveState();
         });
     });
 
@@ -1530,6 +1621,7 @@ function initSettings() {
             document.querySelectorAll('.focus-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             AppState.user.focusArea = btn.dataset.focus;
+            saveState();
         });
     });
 }
@@ -1709,7 +1801,7 @@ function escapeHtml(text) {
 // INITIALIZATION
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Initialize all components
     initNameInput();
     initColorPicker();
@@ -1724,7 +1816,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set initial progress
     updateProgress();
 
-    // Load any saved state from localStorage (optional persistence)
+    // Load any saved state from localStorage (for guest mode / fallback)
     loadSavedState();
 
     // Apply default color theme
@@ -1732,6 +1824,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Connect to AI API (will use local fallback if API unavailable)
     initAIConnection();
+
+    // Initialize authentication (checks for existing session)
+    if (typeof initAuth === 'function') {
+        await initAuth();
+    }
 });
 
 // Initialize AI API connection
@@ -1760,10 +1857,19 @@ function loadSavedState() {
         const saved = localStorage.getItem('galBestfriend_state');
         if (saved) {
             const state = JSON.parse(saved);
-            // Restore color theme if saved
-            if (state.user && state.user.colorTheme) {
-                AppState.user.colorTheme = state.user.colorTheme;
-                applyColorTheme(state.user.colorTheme);
+            // Restore user preferences if saved
+            if (state.user) {
+                if (state.user.colorTheme) {
+                    AppState.user.colorTheme = state.user.colorTheme;
+                    applyColorTheme(state.user.colorTheme);
+                }
+                if (state.user.name) AppState.user.name = state.user.name;
+                if (state.user.situation) AppState.user.situation = state.user.situation;
+                if (state.user.belief) AppState.user.belief = state.user.belief;
+                if (state.user.lifeStage) AppState.user.lifeStage = state.user.lifeStage;
+                if (state.user.toneLevel) AppState.user.toneLevel = state.user.toneLevel;
+                if (state.user.responseStyle) AppState.user.responseStyle = state.user.responseStyle;
+                if (state.user.focusArea) AppState.user.focusArea = state.user.focusArea;
             }
         }
     } catch (e) {
@@ -1772,6 +1878,15 @@ function loadSavedState() {
 }
 
 function saveState() {
+    // For authenticated users, save to Supabase
+    if (AppState.isAuthenticated && AppState.userId) {
+        if (typeof debouncedSaveProfile === 'function') {
+            debouncedSaveProfile();
+        }
+        return;
+    }
+
+    // For guests, save to localStorage
     try {
         localStorage.setItem('galBestfriend_state', JSON.stringify({
             user: AppState.user,
@@ -1971,21 +2086,28 @@ window.GalBestfriend = {
         AppState.user.toneLevel = level;
         const slider = document.getElementById('chatToneSlider');
         if (slider) slider.value = level;
+        saveState();
     },
     setResponseStyle: (style) => {
         AppState.user.responseStyle = style;
+        saveState();
     },
     setFocusArea: (focus) => {
         AppState.user.focusArea = focus;
+        saveState();
     },
     setColorTheme: (theme) => {
         if (colorThemes[theme]) {
             AppState.user.colorTheme = theme;
             applyColorTheme(theme);
+            saveState();
         }
     },
     getColorThemes: () => colorThemes,
     getConversation: () => AppState.conversation,
+    // Auth helpers
+    signOut: () => typeof signOut === 'function' ? signOut() : null,
+    isAuthenticated: () => AppState.isAuthenticated,
     // Hook for external AI integration
     connectAI: (handler) => {
         window.externalAIHandler = handler;

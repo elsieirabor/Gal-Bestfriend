@@ -50,7 +50,7 @@
                 </span>
                 <span class="logo-text">Gal Bestfriend</span>
             </div>
-            <button class="nav-cta" onclick="showScreen('onboarding')">Get Started</button>
+            <button class="nav-cta" onclick="showScreen('auth')">Get Started</button>
         </nav>
 
         <main class="landing-hero">
@@ -67,7 +67,7 @@
                     to how you need to hear it.
                 </p>
                 <div class="hero-cta-group">
-                    <button class="btn-primary" onclick="showScreen('onboarding')">
+                    <button class="btn-primary" onclick="showScreen('auth')">
                         Start a Conversation
                         <span class="btn-arrow">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -75,7 +75,7 @@
                             </svg>
                         </span>
                     </button>
-                    <p class="cta-note">Free · Private · No sign-up required</p>
+                    <p class="cta-note">Free forever · Your chats saved securely</p>
                 </div>
             </div>
 
@@ -158,7 +158,7 @@
             </div>
 
             <div class="about-cta">
-                <button class="btn-primary" onclick="showScreen('onboarding')">
+                <button class="btn-primary" onclick="showScreen('auth')">
                     Start Talking to Gia
                     <span class="btn-arrow">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -174,6 +174,116 @@
             <p>Made with care for women everywhere</p>
             <p class="footer-note">Gia is an AI companion, not a replacement for professional help. If you're in crisis, please reach out to a mental health professional or call 988.</p>
         </footer>
+    </section>
+
+    <!-- Auth Screen -->
+    <section id="auth" class="screen">
+        <button class="back-btn" onclick="showScreen('landing')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </button>
+
+        <div class="auth-container">
+            <div class="auth-header">
+                <span class="auth-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                    </svg>
+                </span>
+                <h2 class="auth-title">Welcome to Gal Bestfriend</h2>
+                <p class="auth-subtitle">Sign in to save your conversations and pick up where you left off</p>
+            </div>
+
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="signIn">Sign In</button>
+                <button class="auth-tab" data-tab="signUp">Sign Up</button>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div class="auth-message auth-error" id="authError"></div>
+            <div class="auth-message auth-success" id="authSuccess"></div>
+
+            <!-- Sign In Form -->
+            <form class="auth-form active" id="signInForm">
+                <div class="auth-input-group">
+                    <label for="signInEmail">Email</label>
+                    <input type="email" id="signInEmail" class="auth-input" placeholder="your@email.com" required>
+                </div>
+                <div class="auth-input-group">
+                    <label for="signInPassword">Password</label>
+                    <input type="password" id="signInPassword" class="auth-input" placeholder="Your password" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Sign In</button>
+                <a href="#" class="auth-link" id="forgotPasswordLink">Forgot password?</a>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form class="auth-form" id="signUpForm">
+                <div class="auth-input-group">
+                    <label for="signUpName">Your Name</label>
+                    <input type="text" id="signUpName" class="auth-input" placeholder="What should we call you?" required>
+                </div>
+                <div class="auth-input-group">
+                    <label for="signUpEmail">Email</label>
+                    <input type="email" id="signUpEmail" class="auth-input" placeholder="your@email.com" required>
+                </div>
+                <div class="auth-input-group">
+                    <label for="signUpPassword">Password</label>
+                    <input type="password" id="signUpPassword" class="auth-input" placeholder="Create a password (min 6 characters)" minlength="6" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Create Account</button>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form class="auth-form" id="forgotPasswordForm">
+                <p class="auth-form-note">Enter your email and we'll send you a reset link</p>
+                <div class="auth-input-group">
+                    <label for="resetEmail">Email</label>
+                    <input type="email" id="resetEmail" class="auth-input" placeholder="your@email.com" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Send Reset Link</button>
+                <a href="#" class="auth-link" onclick="switchAuthTab('signIn'); return false;">Back to sign in</a>
+            </form>
+
+            <!-- New Password Form (shown after clicking reset link) -->
+            <form class="auth-form" id="newPasswordForm">
+                <p class="auth-form-note">Enter your new password</p>
+                <div class="auth-input-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" class="auth-input" placeholder="New password" minlength="6" required>
+                </div>
+                <div class="auth-input-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="auth-input" placeholder="Confirm password" minlength="6" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Update Password</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <!-- Google Sign In -->
+            <button class="google-btn" id="googleSignInBtn">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+
+            <!-- Guest Mode -->
+            <button class="guest-btn" id="continueAsGuest">
+                Continue without account
+            </button>
+            <p class="guest-note">You can create an account later to save your chats</p>
+        </div>
     </section>
 
     <!-- Onboarding Screen -->
@@ -392,10 +502,42 @@
 
     <!-- Chat Screen -->
     <section id="chat" class="screen">
-        <header class="chat-header">
-            <button class="header-back" onclick="showScreen('landing')">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleConversationDrawer(false)"></div>
+
+        <!-- Conversation Sidebar -->
+        <aside class="conversation-sidebar" id="conversationSidebar">
+            <div class="sidebar-header">
+                <h3>Conversations</h3>
+                <button class="sidebar-close" onclick="toggleConversationDrawer(false)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <button class="new-conversation-btn" onclick="startNewConversation()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                New Conversation
+            </button>
+            <div class="conversation-list" id="conversationList">
+                <!-- Conversations will be loaded here -->
+            </div>
+            <div class="sidebar-footer">
+                <button class="signout-btn" onclick="signOut()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <header class="chat-header">
+            <button class="header-menu" onclick="toggleConversationDrawer()" id="menuBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
             </button>
             <div class="header-info">
@@ -538,9 +680,12 @@
                     </span>
                 </button>
             </div>
-            <p class="input-disclaimer">Your conversations are private and never stored on our servers.</p>
+            <p class="input-disclaimer" id="inputDisclaimer">Your conversations are private and securely stored.</p>
         </div>
     </section>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
 
     <!-- Maker-Checker Validation Modal -->
     <div class="validation-modal" id="validationModal">
@@ -606,6 +751,11 @@
         </div>
     </div>
 
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="db.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
