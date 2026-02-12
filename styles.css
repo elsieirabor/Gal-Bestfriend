@@ -1298,8 +1298,9 @@ html, body {
 }
 
 .settings-panel.open {
-    max-height: 400px;
+    max-height: 70vh;
     padding: var(--space-lg);
+    overflow-y: auto;
 }
 
 .settings-content {
@@ -3132,8 +3133,9 @@ html, body {
     }
 
     .settings-panel.open {
-        max-height: 380px;
+        max-height: 70vh;
         padding: var(--space-sm) var(--space-md);
+        overflow-y: auto;
     }
 
     .settings-title {

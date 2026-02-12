@@ -1264,10 +1264,10 @@ async function startNewConversation() {
     }, 500);
 }
 
-// Start completely over - reset all preferences and go to landing
+// Start completely over - reset preferences and go back to questionnaire
 function startOver() {
     // Show confirmation dialog
-    const confirmed = confirm('Start fresh? This will reset your preferences and take you back to the beginning.');
+    const confirmed = confirm('Start fresh? This will reset your preferences and let you choose a new topic.');
 
     if (!confirmed) return;
 
@@ -1275,9 +1275,12 @@ function startOver() {
     AppState.conversation = [];
     AppState.currentConversationId = null;
 
-    // Reset user preferences to defaults
+    // Store name if authenticated (keep it for convenience)
+    const savedName = AppState.isAuthenticated ? AppState.user.name : '';
+
+    // Reset user preferences to defaults (but keep name for authenticated users)
     AppState.user = {
-        name: '',
+        name: savedName,
         colorTheme: 'rose',
         situation: '',
         belief: '',
@@ -1287,8 +1290,8 @@ function startOver() {
         focusArea: 'emotional'
     };
 
-    // Reset onboarding state
-    AppState.currentStep = 1;
+    // Reset onboarding state - start at step 1 if no name, otherwise step 2
+    AppState.currentStep = savedName ? 2 : 1;
 
     // Clear localStorage for guest users
     if (!AppState.isAuthenticated) {
@@ -1304,14 +1307,26 @@ function startOver() {
     if (sidebar) sidebar.classList.remove('open');
     if (overlay) overlay.classList.remove('active');
 
+    // Close settings panel if open
+    const settingsPanel = document.getElementById('settingsPanel');
+    if (settingsPanel) settingsPanel.classList.remove('open');
+
     closeEmojiPicker();
     closeGifPicker();
 
     // Reset onboarding UI elements
     resetOnboardingUI();
 
-    // Navigate to landing page
-    showScreen('landing');
+    // If user has a name, pre-fill it and enable continue
+    if (savedName) {
+        const nameInput = document.getElementById('userName');
+        const step1Btn = document.getElementById('step1Btn');
+        if (nameInput) nameInput.value = savedName;
+        if (step1Btn) step1Btn.disabled = false;
+    }
+
+    // Navigate to onboarding (questionnaire) instead of landing
+    showScreen('onboarding');
 }
 
 // Reset onboarding UI to initial state
