@@ -151,14 +151,6 @@ const responseTemplates = {
                 "I'm here to help you bring this to life! What's the idea, and where are you stuck?",
                 "Let's brainstorm together. What's the big picture, and what's your first instinct on where to start?"
             ]
-        },
-        business: {
-            prompts: [
-                "I love that entrepreneurial energy! Tell me — what's the business or workshop idea you've been thinking about?",
-                "Let's build something amazing together! What's your vision, and who would you love to serve?",
-                "Business brainstorming is my jam! Are you starting from scratch, or do you have something you want to grow?",
-                "Exciting! What sparked this idea? And what's been holding you back from taking the first step?"
-            ]
         }
     }
 };
@@ -242,125 +234,6 @@ const creativePatterns = {
         }
     }
 };
-
-// ============================================
-// BUSINESS & WORKSHOP SUPPORT RESPONSES
-// ============================================
-
-const businessPatterns = {
-    workshopIdea: {
-        patterns: [
-            /workshop/i,
-            /host (a |an )?(event|class|session|webinar)/i,
-            /teach(ing)? (a |an )?(class|course|workshop)/i,
-            /create (a |an )?(course|program|training)/i,
-            /run (a |an )?(workshop|seminar|masterclass)/i,
-            /online (course|class|program)/i
-        ],
-        responses: {
-            gentle: "A workshop! That's such a beautiful way to share your knowledge and connect with others. What topic are you passionate about teaching? I'd love to help you shape this idea.",
-            balanced: "Workshops are such a powerful way to build community and income! Let's think about this: What transformation do you want your participants to experience? And who would benefit most from learning from you?",
-            direct: "Love it — workshops can be incredibly profitable and impactful. Let's get tactical: 1) What's your topic and unique angle? 2) Who's your ideal participant? 3) What format — in-person, virtual, or hybrid? Let's map this out."
-        }
-    },
-    pricing: {
-        patterns: [
-            /how (much |do i |should i )?(charge|price)/i,
-            /pricing (strategy|model|structure)/i,
-            /what('s| is| should be) my (price|rate)/i,
-            /how to price/i,
-            /worth charging/i,
-            /set (my )?(prices|rates)/i
-        ],
-        responses: {
-            gentle: "Pricing can feel so vulnerable — you're literally putting a number on your value! Remember, your price reflects the transformation you provide, not just your time. What results will your clients get?",
-            balanced: "Pricing is part art, part strategy. Here's a framework: Consider the value of the transformation you provide, research what others charge, and price for the client you WANT to attract. What feels aligned for you?",
-            direct: "Let's talk numbers. Three things matter: 1) What transformation are you delivering? 2) What does your ideal client already pay for similar solutions? 3) What do YOU need to make this sustainable? Don't undercharge — it hurts everyone."
-        }
-    },
-    marketing: {
-        patterns: [
-            /how (do i |to )?(market|promote|advertise)/i,
-            /get (more )?(clients|customers|sales)/i,
-            /find (my )?(audience|customers|clients)/i,
-            /grow (my )?(business|following|audience)/i,
-            /social media (strategy|marketing)/i,
-            /nobody('s| is) buying/i
-        ],
-        responses: {
-            gentle: "Marketing can feel overwhelming, but at its heart, it's just about connecting with people who need what you offer. Let's start simple: Where do your ideal clients already hang out, and how can you show up there authentically?",
-            balanced: "Marketing doesn't have to be sleazy or exhausting. The key is consistency and genuine connection. Pick 1-2 platforms where your people are, share valuable content, and engage authentically. What's worked for you so far?",
-            direct: "Real talk: marketing is about solving problems publicly. Show your expertise, share client wins, and make it easy to buy. What's your current strategy? Let's identify what's working and what needs to change."
-        }
-    },
-    imposterSyndrome: {
-        patterns: [
-            /imposter/i,
-            /not (qualified|experienced|expert) enough/i,
-            /who am i to/i,
-            /why would anyone (pay|listen|hire)/i,
-            /feel like a fraud/i,
-            /don't have (enough |any )?(credentials|qualifications|experience)/i
-        ],
-        responses: {
-            gentle: "That voice telling you you're not enough? It's lying. You don't need to be the world's foremost expert — you just need to be a few steps ahead of the people you're helping. Your experience and perspective are valuable exactly as they are.",
-            balanced: "Imposter syndrome hits the best of us — it often means you're growing! Here's the truth: you don't need to know everything. You need to know enough to help your specific audience solve their specific problem. What unique perspective do YOU bring?",
-            direct: "Okay, let's squash this imposter voice. You don't need a PhD to help people. You need experience, empathy, and results. The people who need you aren't looking for the #1 world expert — they're looking for someone who gets their struggle and can guide them forward. That's you."
-        }
-    },
-    startingOut: {
-        patterns: [
-            /where (do i |to )?start/i,
-            /first step/i,
-            /just starting/i,
-            /new to (this|business|entrepreneurship)/i,
-            /beginner/i,
-            /never done this before/i,
-            /don't know (where|how) to begin/i
-        ],
-        responses: {
-            gentle: "Starting something new takes courage, and you're already showing that by thinking about this! Let's take it one step at a time. What's the smallest action you could take this week to move toward your vision?",
-            balanced: "Everyone starts somewhere! Here's my advice: Don't wait until everything is perfect. Start with a minimum viable version, get feedback, and improve as you go. What's ONE thing you could launch or test in the next 30 days?",
-            direct: "The best way to start? Just start. Seriously. Pick your idea, define your audience, create something simple, and put it out there. You'll learn more from taking imperfect action than from planning forever. What can you do THIS WEEK?"
-        }
-    },
-    scalingGrowth: {
-        patterns: [
-            /scale (my |the )?business/i,
-            /grow (my |the )?(business|income|revenue)/i,
-            /next level/i,
-            /expand/i,
-            /hire (help|someone|a team)/i,
-            /passive income/i,
-            /automate/i
-        ],
-        responses: {
-            gentle: "Scaling is exciting — it means you've built something that works! As you grow, remember to protect what makes your business special. What parts of your business bring you the most joy and should stay hands-on?",
-            balanced: "Ready to scale? Nice! The key is to systematize what's working before adding more. What processes can you document, delegate, or automate? And what should stay in your hands because it's your special sauce?",
-            direct: "Scaling 101: 1) Document your processes, 2) Identify what only YOU can do vs. what you can delegate, 3) Build systems before hiring. What's currently bottlenecking your growth? Let's tackle that first."
-        }
-    }
-};
-
-function detectBusinessContext(message) {
-    for (const [context, data] of Object.entries(businessPatterns)) {
-        for (const pattern of data.patterns) {
-            if (pattern.test(message)) {
-                return { context, responses: data.responses };
-            }
-        }
-    }
-    return null;
-}
-
-function getBusinessResponse(userMessage) {
-    const businessContext = detectBusinessContext(userMessage);
-
-    if (!businessContext) return null;
-
-    const tone = getToneKey(AppState.user.toneLevel);
-    return businessContext.responses[tone] || businessContext.responses.balanced;
-}
 
 function detectCreativeContext(message) {
     const lower = message.toLowerCase();
@@ -1789,15 +1662,6 @@ async function generateResponse(userMessage) {
         }
     }
 
-    // Check if this is a business/workshop conversation
-    if (AppState.user.situation === 'business' || detectBusinessContext(userMessage)) {
-        const businessResponse = getBusinessResponse(userMessage);
-        if (businessResponse) {
-            addAIMessage(businessResponse, false);
-            return;
-        }
-    }
-
     // Check if external AI is connected
     if (window.externalAIHandler) {
         try {
@@ -1826,10 +1690,7 @@ async function generateResponse(userMessage) {
                         "When users are hurting, validate feelings but redirect toward healthy coping",
                         "For creative ideas: be enthusiastic and supportive, help break down big ideas into actionable steps",
                         "Help users overcome creative blocks by asking clarifying questions and offering practical next steps",
-                        "Encourage users to pursue their creative dreams while being realistic about planning and execution",
-                        "For business/workshop ideas: be an encouraging business coach, help with strategy, pricing, marketing, and mindset",
-                        "Help users overcome imposter syndrome by validating their experience and unique perspective",
-                        "Provide practical, actionable business advice while staying supportive and non-judgmental"
+                        "Encourage users to pursue their creative dreams while being realistic about planning and execution"
                     ]
                 }
             };
