@@ -768,39 +768,10 @@
                 </div>
             </div>
 
-            <!-- GIF Picker Panel -->
-            <div class="gif-picker" id="gifPicker">
-                <div class="gif-picker-header">
-                    <div class="gif-search-wrapper">
-                        <svg class="gif-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                        </svg>
-                        <input type="text" class="gif-search-input" id="gifSearchInput" placeholder="Search GIFs..." oninput="searchGifs(this.value)">
-                    </div>
-                    <nav class="gif-categories">
-                        <button class="gif-category-btn active" data-category="trending" onclick="loadGifCategory('trending')">Trending</button>
-                        <button class="gif-category-btn" data-category="love" onclick="loadGifCategory('love')">Love</button>
-                        <button class="gif-category-btn" data-category="sad" onclick="loadGifCategory('sad')">Sad</button>
-                        <button class="gif-category-btn" data-category="hug" onclick="loadGifCategory('hug')">Hugs</button>
-                        <button class="gif-category-btn" data-category="excited" onclick="loadGifCategory('excited')">Excited</button>
-                    </nav>
-                </div>
-                <div class="gif-picker-body" id="gifGrid">
-                    <div class="gif-loading">Loading GIFs...</div>
-                </div>
-                <div class="gif-attribution">
-                    <span>Powered by</span>
-                    <img src="https://tenor.com/assets/img/tenor-logo.svg" alt="Tenor" class="tenor-logo">
-                </div>
-            </div>
-
             <div class="input-wrapper">
                 <div class="mood-ring" id="moodRing" title="Mood indicator"></div>
                 <button class="emoji-toggle-btn" id="emojiToggle" onclick="toggleEmojiPicker()" title="Add emoji">
                     <span>😊</span>
-                </button>
-                <button class="gif-toggle-btn" id="gifToggle" onclick="toggleGifPicker()" title="Add GIF">
-                    <span>GIF</span>
                 </button>
                 <textarea
                     id="chatInput"
