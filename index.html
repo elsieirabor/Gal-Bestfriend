@@ -389,6 +389,24 @@
                         <span class="situation-label">Just need to vent</span>
                         <span class="situation-desc">Process feelings, think out loud</span>
                     </button>
+                    <button class="situation-card" data-situation="creative">
+                        <span class="situation-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v4"/><path d="m6.34 6.34 2.83 2.83"/><path d="M2 12h4"/><path d="m6.34 17.66 2.83-2.83"/><path d="M12 18v4"/><path d="m17.66 17.66-2.83-2.83"/><path d="M18 12h4"/><path d="m17.66 6.34-2.83 2.83"/>
+                            </svg>
+                        </span>
+                        <span class="situation-label">Creative ideas</span>
+                        <span class="situation-desc">Brainstorm, plan, bring ideas to life</span>
+                    </button>
+                    <button class="situation-card" data-situation="business">
+                        <span class="situation-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><path d="M6 11h.01"/><path d="M18 11h.01"/>
+                            </svg>
+                        </span>
+                        <span class="situation-label">Business & Workshops</span>
+                        <span class="situation-desc">Ideas, strategies, entrepreneurship</span>
+                    </button>
                 </div>
                 <button class="btn-continue" onclick="nextStep()" disabled id="step3Btn">Continue</button>
             </div>
@@ -525,6 +543,12 @@
                 <!-- Conversations will be loaded here -->
             </div>
             <div class="sidebar-footer">
+                <button class="start-fresh-btn" onclick="startOver()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    Start Fresh
+                </button>
                 <button class="signout-btn" onclick="signOut()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -544,6 +568,17 @@
                 <span class="header-title" id="headerTitle">Gia</span>
                 <span class="header-status" id="headerStatus">Ready to listen</span>
             </div>
+            <button class="header-new-chat" onclick="startNewConversation()" title="Start fresh">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                <span>New</span>
+            </button>
+            <button class="header-home" onclick="startOver()" title="Start over">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </button>
             <button class="header-settings" onclick="toggleSettings()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
@@ -554,7 +589,8 @@
         <!-- Settings Panel -->
         <div class="settings-panel" id="settingsPanel">
             <div class="settings-content">
-                <h3 class="settings-title">Conversation Settings</h3>
+                <h3 class="settings-title">Customize Your Experience</h3>
+                <p class="settings-subtitle">Adjust how Gia responds to you</p>
 
                 <div class="settings-group">
                     <label class="settings-label">Advice Tone</label>
@@ -589,6 +625,52 @@
 
         <!-- Chat Messages -->
         <div class="chat-messages" id="chatMessages">
+            <!-- Empty State - shown when no messages -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state-header">
+                    <span class="empty-state-wave">👋</span>
+                    <h2>Hey there!</h2>
+                    <p>I'm Gia, your go-to bestie for all things life, love, and everything in between. What's on your mind?</p>
+                </div>
+                <div class="starter-cards">
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I need to vent about my relationship">
+                        <span class="starter-icon">💔</span>
+                        <span class="starter-text">Vent about my relationship</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I'm feeling really anxious about something">
+                        <span class="starter-icon">😰</span>
+                        <span class="starter-text">Feeling anxious</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I need advice about a friendship issue">
+                        <span class="starter-icon">👯‍♀️</span>
+                        <span class="starter-text">Friendship advice</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I don't know if I should text them back">
+                        <span class="starter-icon">📱</span>
+                        <span class="starter-text">Should I text back?</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I'm going through a breakup and need support">
+                        <span class="starter-icon">🫂</span>
+                        <span class="starter-text">Going through a breakup</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I have a creative idea I want to bring to life but don't know where to start">
+                        <span class="starter-icon">💡</span>
+                        <span class="starter-text">Bring my idea to life</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I want to work on my self-confidence">
+                        <span class="starter-icon">✨</span>
+                        <span class="starter-text">Build my confidence</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I have a business or workshop idea I want to brainstorm">
+                        <span class="starter-icon">💼</span>
+                        <span class="starter-text">Brainstorm my business</span>
+                    </button>
+                    <button class="starter-card" onclick="useStarter(this)" data-prompt="I want to start a project but I'm feeling overwhelmed and need help planning it out">
+                        <span class="starter-icon">🎯</span>
+                        <span class="starter-text">Plan my project</span>
+                    </button>
+                </div>
+            </div>
             <!-- Messages will be inserted here -->
         </div>
 
@@ -611,45 +693,127 @@
             </div>
             <!-- Emoji Picker Panel -->
             <div class="emoji-picker" id="emojiPicker">
-                <div class="emoji-category">
-                    <span class="emoji-category-label">Feelings</span>
-                    <div class="emoji-grid">
-                        <button class="emoji-btn" data-emoji="😊">😊</button>
-                        <button class="emoji-btn" data-emoji="😢">😢</button>
-                        <button class="emoji-btn" data-emoji="😤">😤</button>
-                        <button class="emoji-btn" data-emoji="😔">😔</button>
-                        <button class="emoji-btn" data-emoji="🥺">🥺</button>
-                        <button class="emoji-btn" data-emoji="😭">😭</button>
-                        <button class="emoji-btn" data-emoji="😅">😅</button>
-                        <button class="emoji-btn" data-emoji="🙄">🙄</button>
-                        <button class="emoji-btn" data-emoji="😩">😩</button>
-                        <button class="emoji-btn" data-emoji="🤔">🤔</button>
-                        <button class="emoji-btn" data-emoji="😍">😍</button>
-                        <button class="emoji-btn" data-emoji="🥰">🥰</button>
-                    </div>
+                <div class="emoji-picker-header">
+                    <nav class="emoji-tabs">
+                        <button class="emoji-tab active" data-category="mood" onclick="switchEmojiTab('mood')">Mood</button>
+                        <button class="emoji-tab" data-category="love" onclick="switchEmojiTab('love')">Love</button>
+                        <button class="emoji-tab" data-category="react" onclick="switchEmojiTab('react')">React</button>
+                        <button class="emoji-tab" data-category="vibes" onclick="switchEmojiTab('vibes')">Vibes</button>
+                    </nav>
                 </div>
-                <div class="emoji-category">
-                    <span class="emoji-category-label">Reactions</span>
-                    <div class="emoji-grid">
-                        <button class="emoji-btn" data-emoji="💕">💕</button>
-                        <button class="emoji-btn" data-emoji="💔">💔</button>
-                        <button class="emoji-btn" data-emoji="✨">✨</button>
-                        <button class="emoji-btn" data-emoji="🙏">🙏</button>
-                        <button class="emoji-btn" data-emoji="💪">💪</button>
-                        <button class="emoji-btn" data-emoji="🤗">🤗</button>
-                        <button class="emoji-btn" data-emoji="👀">👀</button>
-                        <button class="emoji-btn" data-emoji="🫠">🫠</button>
-                        <button class="emoji-btn" data-emoji="😬">😬</button>
-                        <button class="emoji-btn" data-emoji="🤷‍♀️">🤷‍♀️</button>
-                        <button class="emoji-btn" data-emoji="💯">💯</button>
-                        <button class="emoji-btn" data-emoji="🚩">🚩</button>
+                <div class="emoji-picker-body">
+                    <div class="emoji-category active" data-category="mood">
+                        <div class="emoji-grid">
+                            <button class="emoji-btn" data-emoji="😊">😊</button>
+                            <button class="emoji-btn" data-emoji="🥹">🥹</button>
+                            <button class="emoji-btn" data-emoji="😔">😔</button>
+                            <button class="emoji-btn" data-emoji="😢">😢</button>
+                            <button class="emoji-btn" data-emoji="😭">😭</button>
+                            <button class="emoji-btn" data-emoji="😤">😤</button>
+                            <button class="emoji-btn" data-emoji="🥺">🥺</button>
+                            <button class="emoji-btn" data-emoji="😩">😩</button>
+                            <button class="emoji-btn" data-emoji="🤔">🤔</button>
+                            <button class="emoji-btn" data-emoji="😅">😅</button>
+                            <button class="emoji-btn" data-emoji="🙄">🙄</button>
+                            <button class="emoji-btn" data-emoji="😮‍💨">😮‍💨</button>
+                            <button class="emoji-btn" data-emoji="🫠">🫠</button>
+                            <button class="emoji-btn" data-emoji="😌">😌</button>
+                            <button class="emoji-btn" data-emoji="🤭">🤭</button>
+                        </div>
+                    </div>
+                    <div class="emoji-category" data-category="love">
+                        <div class="emoji-grid">
+                            <button class="emoji-btn" data-emoji="🥰">🥰</button>
+                            <button class="emoji-btn" data-emoji="😍">😍</button>
+                            <button class="emoji-btn" data-emoji="💕">💕</button>
+                            <button class="emoji-btn" data-emoji="💗">💗</button>
+                            <button class="emoji-btn" data-emoji="💖">💖</button>
+                            <button class="emoji-btn" data-emoji="💔">💔</button>
+                            <button class="emoji-btn" data-emoji="🫶">🫶</button>
+                            <button class="emoji-btn" data-emoji="🤗">🤗</button>
+                            <button class="emoji-btn" data-emoji="💋">💋</button>
+                            <button class="emoji-btn" data-emoji="🫂">🫂</button>
+                            <button class="emoji-btn" data-emoji="💌">💌</button>
+                            <button class="emoji-btn" data-emoji="🩷">🩷</button>
+                            <button class="emoji-btn" data-emoji="❤️‍🩹">❤️‍🩹</button>
+                            <button class="emoji-btn" data-emoji="🤍">🤍</button>
+                            <button class="emoji-btn" data-emoji="💞">💞</button>
+                        </div>
+                    </div>
+                    <div class="emoji-category" data-category="react">
+                        <div class="emoji-grid">
+                            <button class="emoji-btn" data-emoji="💯">💯</button>
+                            <button class="emoji-btn" data-emoji="🙏">🙏</button>
+                            <button class="emoji-btn" data-emoji="💪">💪</button>
+                            <button class="emoji-btn" data-emoji="👀">👀</button>
+                            <button class="emoji-btn" data-emoji="🤷‍♀️">🤷‍♀️</button>
+                            <button class="emoji-btn" data-emoji="🚩">🚩</button>
+                            <button class="emoji-btn" data-emoji="😬">😬</button>
+                            <button class="emoji-btn" data-emoji="👏">👏</button>
+                            <button class="emoji-btn" data-emoji="🫡">🫡</button>
+                            <button class="emoji-btn" data-emoji="🙃">🙃</button>
+                            <button class="emoji-btn" data-emoji="💀">💀</button>
+                            <button class="emoji-btn" data-emoji="🫣">🫣</button>
+                            <button class="emoji-btn" data-emoji="😏">😏</button>
+                            <button class="emoji-btn" data-emoji="🤌">🤌</button>
+                            <button class="emoji-btn" data-emoji="👑">👑</button>
+                        </div>
+                    </div>
+                    <div class="emoji-category" data-category="vibes">
+                        <div class="emoji-grid">
+                            <button class="emoji-btn" data-emoji="✨">✨</button>
+                            <button class="emoji-btn" data-emoji="🦋">🦋</button>
+                            <button class="emoji-btn" data-emoji="🌙">🌙</button>
+                            <button class="emoji-btn" data-emoji="☀️">☀️</button>
+                            <button class="emoji-btn" data-emoji="🌸">🌸</button>
+                            <button class="emoji-btn" data-emoji="🍷">🍷</button>
+                            <button class="emoji-btn" data-emoji="☕">☕</button>
+                            <button class="emoji-btn" data-emoji="🧸">🧸</button>
+                            <button class="emoji-btn" data-emoji="🎀">🎀</button>
+                            <button class="emoji-btn" data-emoji="🫧">🫧</button>
+                            <button class="emoji-btn" data-emoji="🌿">🌿</button>
+                            <button class="emoji-btn" data-emoji="🕯️">🕯️</button>
+                            <button class="emoji-btn" data-emoji="💐">💐</button>
+                            <button class="emoji-btn" data-emoji="🧿">🧿</button>
+                            <button class="emoji-btn" data-emoji="🪩">🪩</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- GIF Picker Panel -->
+            <div class="gif-picker" id="gifPicker">
+                <div class="gif-picker-header">
+                    <div class="gif-search-wrapper">
+                        <svg class="gif-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                        </svg>
+                        <input type="text" class="gif-search-input" id="gifSearchInput" placeholder="Search GIFs..." oninput="searchGifs(this.value)">
+                    </div>
+                    <nav class="gif-categories">
+                        <button class="gif-category-btn active" data-category="trending" onclick="loadGifCategory('trending')">Trending</button>
+                        <button class="gif-category-btn" data-category="love" onclick="loadGifCategory('love')">Love</button>
+                        <button class="gif-category-btn" data-category="sad" onclick="loadGifCategory('sad')">Sad</button>
+                        <button class="gif-category-btn" data-category="hug" onclick="loadGifCategory('hug')">Hugs</button>
+                        <button class="gif-category-btn" data-category="excited" onclick="loadGifCategory('excited')">Excited</button>
+                    </nav>
+                </div>
+                <div class="gif-picker-body" id="gifGrid">
+                    <div class="gif-loading">Loading GIFs...</div>
+                </div>
+                <div class="gif-attribution">
+                    <span>Powered by</span>
+                    <img src="https://tenor.com/assets/img/tenor-logo.svg" alt="Tenor" class="tenor-logo">
+                </div>
+            </div>
+
             <div class="input-wrapper">
+                <div class="mood-ring" id="moodRing" title="Mood indicator"></div>
                 <button class="emoji-toggle-btn" id="emojiToggle" onclick="toggleEmojiPicker()" title="Add emoji">
                     <span>😊</span>
+                </button>
+                <button class="gif-toggle-btn" id="gifToggle" onclick="toggleGifPicker()" title="Add GIF">
+                    <span>GIF</span>
                 </button>
                 <textarea
                     id="chatInput"

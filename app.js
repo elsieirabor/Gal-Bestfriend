@@ -143,9 +143,247 @@ const responseTemplates = {
                 "Sometimes we just need to process. What's the main thing you're feeling?",
                 "Take your time. What do you need right now — to vent, to think out loud, or to get advice?"
             ]
+        },
+        creative: {
+            prompts: [
+                "Ooh, I love this! Tell me about your idea — what's the vision?",
+                "Creative projects are my favorite. What's been sparking your imagination lately?",
+                "I'm here to help you bring this to life! What's the idea, and where are you stuck?",
+                "Let's brainstorm together. What's the big picture, and what's your first instinct on where to start?"
+            ]
+        },
+        business: {
+            prompts: [
+                "I love that entrepreneurial energy! Tell me — what's the business or workshop idea you've been thinking about?",
+                "Let's build something amazing together! What's your vision, and who would you love to serve?",
+                "Business brainstorming is my jam! Are you starting from scratch, or do you have something you want to grow?",
+                "Exciting! What sparked this idea? And what's been holding you back from taking the first step?"
+            ]
         }
     }
 };
+
+// ============================================
+// CREATIVE SUPPORT RESPONSES
+// ============================================
+
+const creativePatterns = {
+    ideaStage: {
+        patterns: [
+            /i have (an |this )?idea/i,
+            /i('ve| have) been thinking about (starting|creating|making|building)/i,
+            /i want to (start|create|make|build|launch|design)/i,
+            /thinking (of|about) starting/i,
+            /dream of (starting|creating|having|running)/i
+        ],
+        responses: {
+            gentle: "I love that you have this vision! Let's nurture it together. What does this idea look like in your mind when it's fully realized? Paint me the picture.",
+            balanced: "Yes! I'm here for this creative energy. Tell me more — what's the core of this idea, and what excites you most about it?",
+            direct: "Love it. Let's make it happen. What's the idea, and what's stopping you from starting right now?"
+        }
+    },
+    stuckOrOverwhelmed: {
+        patterns: [
+            /don't know where to start/i,
+            /feeling overwhelmed/i,
+            /too many ideas/i,
+            /stuck on/i,
+            /can't figure out/i,
+            /not sure how to/i,
+            /where do i (even )?begin/i
+        ],
+        responses: {
+            gentle: "It's so normal to feel overwhelmed when you care deeply about something. Let's take a breath and break this down into smaller pieces. What feels like the very first tiny step you could take?",
+            balanced: "Being stuck usually means you're trying to see the whole staircase. Let's just focus on the first step. What's one small thing you could do this week to move forward?",
+            direct: "Overwhelm means you're thinking too big. Let's get tactical. If you had to do just ONE thing in the next 24 hours for this project, what would move the needle most?"
+        }
+    },
+    planningHelp: {
+        patterns: [
+            /help (me )?(plan|organize|structure|figure out)/i,
+            /need (a |to make a )?(plan|roadmap|strategy)/i,
+            /how (do|should) i (start|begin|approach)/i,
+            /what('s| is) the (first step|next step|best way)/i,
+            /break (it |this )?down/i
+        ],
+        responses: {
+            gentle: "I'd love to help you create a plan that feels good, not stressful. Let's start with the end in mind — what does 'done' look like for you? Then we can work backwards.",
+            balanced: "Great idea to plan it out! Let's think about three things: What's the goal? What resources do you have? And what's a realistic timeline? Walk me through your thoughts on each.",
+            direct: "Alright, let's get strategic. Tell me: 1) What's the end result you want? 2) What do you already have to work with? 3) What's your biggest constraint — time, money, or skills?"
+        }
+    },
+    validation: {
+        patterns: [
+            /is (this|my idea) (stupid|dumb|crazy|silly|too much)/i,
+            /do you think (i can|it's possible|this could work)/i,
+            /am i (crazy|being unrealistic|overthinking)/i,
+            /what if (it fails|nobody likes it|i'm not good enough)/i,
+            /should i even bother/i
+        ],
+        responses: {
+            gentle: "The fact that you're thinking about this tells me it matters to you — and that alone makes it worth exploring. Every great thing started as just an idea in someone's head. What would you tell a friend who had this same dream?",
+            balanced: "Listen, doubt is just part of the creative process. It means you care. The question isn't 'is this perfect?' — it's 'is this worth trying?' And from what you're telling me, it sounds like it is.",
+            direct: "Here's the truth: every successful person has felt exactly what you're feeling. The difference is they did it anyway. The worst case? You learn something. The best case? You create something amazing. What's really holding you back?"
+        }
+    },
+    businessIdea: {
+        patterns: [
+            /business idea/i,
+            /start (a |my own )?(business|company|brand|shop)/i,
+            /side hustle/i,
+            /monetize/i,
+            /make money (from|with)/i,
+            /turn (this |it )?into a business/i
+        ],
+        responses: {
+            gentle: "Building something of your own is such an empowering journey! Let's explore this together. What's the heart of this business idea — what problem are you solving or what joy are you creating?",
+            balanced: "I love entrepreneurial energy! Before we dive into the how, let's get clear on the what and why. What would this business offer, and why are you the right person to build it?",
+            direct: "Alright, let's get real about this business idea. Three questions: 1) Who would pay for this? 2) Why would they choose you? 3) What do you need to get started? Let's figure this out."
+        }
+    }
+};
+
+// ============================================
+// BUSINESS & WORKSHOP SUPPORT RESPONSES
+// ============================================
+
+const businessPatterns = {
+    workshopIdea: {
+        patterns: [
+            /workshop/i,
+            /host (a |an )?(event|class|session|webinar)/i,
+            /teach(ing)? (a |an )?(class|course|workshop)/i,
+            /create (a |an )?(course|program|training)/i,
+            /run (a |an )?(workshop|seminar|masterclass)/i,
+            /online (course|class|program)/i
+        ],
+        responses: {
+            gentle: "A workshop! That's such a beautiful way to share your knowledge and connect with others. What topic are you passionate about teaching? I'd love to help you shape this idea.",
+            balanced: "Workshops are such a powerful way to build community and income! Let's think about this: What transformation do you want your participants to experience? And who would benefit most from learning from you?",
+            direct: "Love it — workshops can be incredibly profitable and impactful. Let's get tactical: 1) What's your topic and unique angle? 2) Who's your ideal participant? 3) What format — in-person, virtual, or hybrid? Let's map this out."
+        }
+    },
+    pricing: {
+        patterns: [
+            /how (much |do i |should i )?(charge|price)/i,
+            /pricing (strategy|model|structure)/i,
+            /what('s| is| should be) my (price|rate)/i,
+            /how to price/i,
+            /worth charging/i,
+            /set (my )?(prices|rates)/i
+        ],
+        responses: {
+            gentle: "Pricing can feel so vulnerable — you're literally putting a number on your value! Remember, your price reflects the transformation you provide, not just your time. What results will your clients get?",
+            balanced: "Pricing is part art, part strategy. Here's a framework: Consider the value of the transformation you provide, research what others charge, and price for the client you WANT to attract. What feels aligned for you?",
+            direct: "Let's talk numbers. Three things matter: 1) What transformation are you delivering? 2) What does your ideal client already pay for similar solutions? 3) What do YOU need to make this sustainable? Don't undercharge — it hurts everyone."
+        }
+    },
+    marketing: {
+        patterns: [
+            /how (do i |to )?(market|promote|advertise)/i,
+            /get (more )?(clients|customers|sales)/i,
+            /find (my )?(audience|customers|clients)/i,
+            /grow (my )?(business|following|audience)/i,
+            /social media (strategy|marketing)/i,
+            /nobody('s| is) buying/i
+        ],
+        responses: {
+            gentle: "Marketing can feel overwhelming, but at its heart, it's just about connecting with people who need what you offer. Let's start simple: Where do your ideal clients already hang out, and how can you show up there authentically?",
+            balanced: "Marketing doesn't have to be sleazy or exhausting. The key is consistency and genuine connection. Pick 1-2 platforms where your people are, share valuable content, and engage authentically. What's worked for you so far?",
+            direct: "Real talk: marketing is about solving problems publicly. Show your expertise, share client wins, and make it easy to buy. What's your current strategy? Let's identify what's working and what needs to change."
+        }
+    },
+    imposterSyndrome: {
+        patterns: [
+            /imposter/i,
+            /not (qualified|experienced|expert) enough/i,
+            /who am i to/i,
+            /why would anyone (pay|listen|hire)/i,
+            /feel like a fraud/i,
+            /don't have (enough |any )?(credentials|qualifications|experience)/i
+        ],
+        responses: {
+            gentle: "That voice telling you you're not enough? It's lying. You don't need to be the world's foremost expert — you just need to be a few steps ahead of the people you're helping. Your experience and perspective are valuable exactly as they are.",
+            balanced: "Imposter syndrome hits the best of us — it often means you're growing! Here's the truth: you don't need to know everything. You need to know enough to help your specific audience solve their specific problem. What unique perspective do YOU bring?",
+            direct: "Okay, let's squash this imposter voice. You don't need a PhD to help people. You need experience, empathy, and results. The people who need you aren't looking for the #1 world expert — they're looking for someone who gets their struggle and can guide them forward. That's you."
+        }
+    },
+    startingOut: {
+        patterns: [
+            /where (do i |to )?start/i,
+            /first step/i,
+            /just starting/i,
+            /new to (this|business|entrepreneurship)/i,
+            /beginner/i,
+            /never done this before/i,
+            /don't know (where|how) to begin/i
+        ],
+        responses: {
+            gentle: "Starting something new takes courage, and you're already showing that by thinking about this! Let's take it one step at a time. What's the smallest action you could take this week to move toward your vision?",
+            balanced: "Everyone starts somewhere! Here's my advice: Don't wait until everything is perfect. Start with a minimum viable version, get feedback, and improve as you go. What's ONE thing you could launch or test in the next 30 days?",
+            direct: "The best way to start? Just start. Seriously. Pick your idea, define your audience, create something simple, and put it out there. You'll learn more from taking imperfect action than from planning forever. What can you do THIS WEEK?"
+        }
+    },
+    scalingGrowth: {
+        patterns: [
+            /scale (my |the )?business/i,
+            /grow (my |the )?(business|income|revenue)/i,
+            /next level/i,
+            /expand/i,
+            /hire (help|someone|a team)/i,
+            /passive income/i,
+            /automate/i
+        ],
+        responses: {
+            gentle: "Scaling is exciting — it means you've built something that works! As you grow, remember to protect what makes your business special. What parts of your business bring you the most joy and should stay hands-on?",
+            balanced: "Ready to scale? Nice! The key is to systematize what's working before adding more. What processes can you document, delegate, or automate? And what should stay in your hands because it's your special sauce?",
+            direct: "Scaling 101: 1) Document your processes, 2) Identify what only YOU can do vs. what you can delegate, 3) Build systems before hiring. What's currently bottlenecking your growth? Let's tackle that first."
+        }
+    }
+};
+
+function detectBusinessContext(message) {
+    for (const [context, data] of Object.entries(businessPatterns)) {
+        for (const pattern of data.patterns) {
+            if (pattern.test(message)) {
+                return { context, responses: data.responses };
+            }
+        }
+    }
+    return null;
+}
+
+function getBusinessResponse(userMessage) {
+    const businessContext = detectBusinessContext(userMessage);
+
+    if (!businessContext) return null;
+
+    const tone = getToneKey(AppState.user.toneLevel);
+    return businessContext.responses[tone] || businessContext.responses.balanced;
+}
+
+function detectCreativeContext(message) {
+    const lower = message.toLowerCase();
+
+    for (const [context, data] of Object.entries(creativePatterns)) {
+        for (const pattern of data.patterns) {
+            if (pattern.test(message)) {
+                return { context, responses: data.responses };
+            }
+        }
+    }
+
+    return null;
+}
+
+function getCreativeResponse(userMessage) {
+    const creativeContext = detectCreativeContext(userMessage);
+
+    if (!creativeContext) return null;
+
+    const tone = getToneKey(AppState.user.toneLevel);
+    return creativeContext.responses[tone] || creativeContext.responses.balanced;
+}
 
 // ============================================
 // CRISIS DETECTION & SUPPORT
@@ -245,6 +483,11 @@ function toggleEmojiPicker() {
     const emojiPicker = document.getElementById('emojiPicker');
     const emojiToggle = document.getElementById('emojiToggle');
 
+    // Close GIF picker if open
+    if (typeof closeGifPicker === 'function') {
+        closeGifPicker();
+    }
+
     if (emojiPicker.classList.contains('active')) {
         closeEmojiPicker();
     } else {
@@ -259,6 +502,21 @@ function closeEmojiPicker() {
 
     emojiPicker.classList.remove('active');
     emojiToggle.classList.remove('active');
+}
+
+function switchEmojiTab(category) {
+    const picker = document.getElementById('emojiPicker');
+    if (!picker) return;
+
+    // Update active tab
+    picker.querySelectorAll('.emoji-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.category === category);
+    });
+
+    // Update active category panel
+    picker.querySelectorAll('.emoji-category').forEach(cat => {
+        cat.classList.toggle('active', cat.dataset.category === category);
+    });
 }
 
 function insertEmoji(emoji) {
@@ -284,6 +542,195 @@ function insertEmoji(emoji) {
 }
 
 // ============================================
+// MOOD RING INDICATOR
+// ============================================
+
+const moodKeywords = {
+    happy: ['happy', 'excited', 'amazing', 'great', 'love', 'wonderful', 'fantastic', 'yay', 'awesome', 'blessed', 'grateful', 'joy', '😊', '😍', '🥰', '✨'],
+    sad: ['sad', 'cry', 'crying', 'depressed', 'heartbroken', 'miss', 'lonely', 'hurt', 'pain', 'lost', 'empty', 'tears', '😢', '😭', '💔'],
+    angry: ['angry', 'mad', 'furious', 'pissed', 'annoyed', 'frustrated', 'hate', 'ugh', 'stupid', 'unfair', '😤', '🤬'],
+    anxious: ['anxious', 'worried', 'scared', 'nervous', 'stress', 'overwhelmed', 'panic', 'fear', 'what if', 'cant stop thinking', '😰', '😟'],
+    love: ['love you', 'in love', 'crush', 'feelings', 'heart', 'romantic', 'relationship', 'partner', 'boyfriend', 'girlfriend', 'babe', '💕', '💗', '🩷']
+};
+
+function detectMood(text) {
+    const lowerText = text.toLowerCase();
+    let detectedMood = 'neutral';
+    let maxMatches = 0;
+
+    for (const [mood, keywords] of Object.entries(moodKeywords)) {
+        const matches = keywords.filter(kw => lowerText.includes(kw)).length;
+        if (matches > maxMatches) {
+            maxMatches = matches;
+            detectedMood = mood;
+        }
+    }
+
+    return maxMatches > 0 ? detectedMood : 'neutral';
+}
+
+function updateMoodRing(text) {
+    const moodRing = document.getElementById('moodRing');
+    if (!moodRing) return;
+
+    // Remove all mood classes
+    moodRing.classList.remove('mood-happy', 'mood-sad', 'mood-angry', 'mood-anxious', 'mood-love', 'mood-neutral');
+
+    if (text.trim().length > 0) {
+        const mood = detectMood(text);
+        moodRing.classList.add(`mood-${mood}`);
+    }
+}
+
+function initMoodRing() {
+    const textarea = document.getElementById('chatInput');
+    if (!textarea) return;
+
+    textarea.addEventListener('input', (e) => {
+        updateMoodRing(e.target.value);
+    });
+}
+
+// ============================================
+// GIF PICKER (Tenor API)
+// ============================================
+
+const TENOR_API_KEY = 'AIzaSyAq6TFdvWAnzrp2L_2s-3XqS2cjxu4C5Bo'; // Free API key for demo
+let gifSearchTimeout = null;
+
+function toggleGifPicker() {
+    const gifPicker = document.getElementById('gifPicker');
+    const gifToggle = document.getElementById('gifToggle');
+
+    // Close emoji picker if open
+    closeEmojiPicker();
+
+    if (gifPicker.classList.contains('active')) {
+        closeGifPicker();
+    } else {
+        gifPicker.classList.add('active');
+        gifToggle.classList.add('active');
+        loadGifCategory('trending');
+    }
+}
+
+function closeGifPicker() {
+    const gifPicker = document.getElementById('gifPicker');
+    const gifToggle = document.getElementById('gifToggle');
+
+    gifPicker.classList.remove('active');
+    gifToggle.classList.remove('active');
+}
+
+async function loadGifCategory(category) {
+    const gifGrid = document.getElementById('gifGrid');
+    const buttons = document.querySelectorAll('.gif-category-btn');
+
+    // Update active button
+    buttons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
+    });
+
+    // Clear search input
+    const searchInput = document.getElementById('gifSearchInput');
+    if (searchInput) searchInput.value = '';
+
+    // Show loading
+    gifGrid.innerHTML = '<div class="gif-loading">Loading GIFs...</div>';
+
+    try {
+        const searchTerm = category === 'trending' ? '' : category;
+        const endpoint = category === 'trending'
+            ? `https://tenor.googleapis.com/v2/featured?key=${TENOR_API_KEY}&limit=20`
+            : `https://tenor.googleapis.com/v2/search?key=${TENOR_API_KEY}&q=${encodeURIComponent(searchTerm)}&limit=20`;
+
+        const response = await fetch(endpoint);
+        const data = await response.json();
+
+        displayGifs(data.results || []);
+    } catch (error) {
+        console.error('Error loading GIFs:', error);
+        gifGrid.innerHTML = '<div class="gif-loading">Could not load GIFs</div>';
+    }
+}
+
+function searchGifs(query) {
+    clearTimeout(gifSearchTimeout);
+
+    if (!query.trim()) {
+        loadGifCategory('trending');
+        return;
+    }
+
+    gifSearchTimeout = setTimeout(async () => {
+        const gifGrid = document.getElementById('gifGrid');
+        gifGrid.innerHTML = '<div class="gif-loading">Searching...</div>';
+
+        // Deactivate category buttons
+        document.querySelectorAll('.gif-category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        try {
+            const response = await fetch(
+                `https://tenor.googleapis.com/v2/search?key=${TENOR_API_KEY}&q=${encodeURIComponent(query)}&limit=20`
+            );
+            const data = await response.json();
+            displayGifs(data.results || []);
+        } catch (error) {
+            console.error('Error searching GIFs:', error);
+            gifGrid.innerHTML = '<div class="gif-loading">Search failed</div>';
+        }
+    }, 400);
+}
+
+function displayGifs(gifs) {
+    const gifGrid = document.getElementById('gifGrid');
+
+    if (!gifs.length) {
+        gifGrid.innerHTML = '<div class="gif-loading">No GIFs found</div>';
+        return;
+    }
+
+    gifGrid.innerHTML = gifs.map(gif => {
+        const preview = gif.media_formats?.tinygif?.url || gif.media_formats?.gif?.url;
+        const fullSize = gif.media_formats?.gif?.url || preview;
+        return `
+            <div class="gif-item" onclick="selectGif('${fullSize}', '${gif.content_description || ''}')">
+                <img src="${preview}" alt="${gif.content_description || 'GIF'}" loading="lazy">
+            </div>
+        `;
+    }).join('');
+}
+
+function selectGif(gifUrl, altText) {
+    // Close the GIF picker
+    closeGifPicker();
+
+    // Insert GIF as a message or into chat
+    const textarea = document.getElementById('chatInput');
+    textarea.value = `[GIF: ${altText || 'reaction'}]`;
+    textarea.dispatchEvent(new Event('input'));
+    textarea.focus();
+
+    // For now, just send the GIF reference - you could also display it as an image
+    if (window.GalBestfriend && window.GalBestfriend.addUserMessage) {
+        // Could be enhanced to render actual GIF images
+    }
+}
+
+function initGifPicker() {
+    // Close GIF picker when clicking outside
+    document.addEventListener('click', (e) => {
+        const gifPicker = document.getElementById('gifPicker');
+        const gifToggle = document.getElementById('gifToggle');
+        if (gifPicker && !gifPicker.contains(e.target) && e.target !== gifToggle && !gifToggle.contains(e.target)) {
+            closeGifPicker();
+        }
+    });
+}
+
+// ============================================
 // EMOJI REACTIONS
 // ============================================
 
@@ -298,6 +745,11 @@ function addReaction(messageId, reaction) {
     if (reactionBtn.classList.contains('reacted')) {
         // Remove reaction
         reactionBtn.classList.remove('reacted');
+        // Check if any reactions remain
+        const hasAny = reactionsContainer.querySelector('.reaction-btn.reacted');
+        if (!hasAny) {
+            reactionsContainer.classList.remove('has-reaction');
+        }
     } else {
         // Remove other reactions from this message
         reactionsContainer.querySelectorAll('.reaction-btn').forEach(btn => {
@@ -306,6 +758,7 @@ function addReaction(messageId, reaction) {
 
         // Add this reaction
         reactionBtn.classList.add('reacted');
+        reactionsContainer.classList.add('has-reaction');
 
         // Haptic feedback
         if (navigator.vibrate) {
@@ -313,10 +766,10 @@ function addReaction(messageId, reaction) {
         }
 
         // Small bounce animation
-        reactionBtn.style.transform = 'scale(1.3)';
+        reactionBtn.style.transform = 'scale(1.15)';
         setTimeout(() => {
             reactionBtn.style.transform = '';
-        }, 150);
+        }, 200);
     }
 }
 
@@ -675,9 +1128,16 @@ async function initializeChat() {
         }
     }
 
-    // Clear previous messages for fresh chat
+    // Clear previous messages for fresh chat but keep empty state
+    const emptyState = document.getElementById('emptyState');
     messagesContainer.innerHTML = '';
     AppState.conversation = [];
+
+    // Re-add empty state to container
+    if (emptyState) {
+        messagesContainer.appendChild(emptyState);
+        emptyState.classList.remove('hidden');
+    }
 
     // Check if returning user
     const isReturningUser = checkReturningUser();
@@ -753,6 +1213,148 @@ function markUserVisit() {
     localStorage.setItem('gal_lastVisit', new Date().toISOString());
 }
 
+// Start a fresh conversation without logging out
+async function startNewConversation() {
+    const messagesContainer = document.getElementById('chatMessages');
+
+    // Clear current conversation from state
+    AppState.conversation = [];
+    AppState.currentConversationId = null;
+
+    // If authenticated, create a new conversation in the database
+    if (AppState.isAuthenticated && AppState.userId) {
+        const convoId = await createConversation(AppState.userId);
+        if (convoId) {
+            AppState.currentConversationId = convoId;
+        }
+    }
+
+    // Clear the messages container
+    const emptyState = document.getElementById('emptyState');
+    messagesContainer.innerHTML = '';
+
+    // Re-add and show empty state
+    if (emptyState) {
+        messagesContainer.appendChild(emptyState);
+        emptyState.classList.remove('hidden');
+    }
+
+    // Close any open pickers/panels
+    closeEmojiPicker();
+    closeGifPicker();
+
+    // Reset input field
+    const input = document.getElementById('userInput');
+    if (input) {
+        input.value = '';
+        input.style.height = 'auto';
+    }
+
+    // Send a fresh welcome message
+    const toneKey = getToneKey(AppState.user.toneLevel);
+    const greeting = responseTemplates.greeting[toneKey](AppState.user.name);
+
+    setTimeout(() => {
+        addAIMessage(greeting);
+
+        // Add a follow-up prompt
+        setTimeout(() => {
+            addAIMessage("What's on your mind today? I'm here for whatever you need to talk about.");
+        }, 1200);
+    }, 500);
+}
+
+// Start completely over - reset all preferences and go to landing
+function startOver() {
+    // Show confirmation dialog
+    const confirmed = confirm('Start fresh? This will reset your preferences and take you back to the beginning.');
+
+    if (!confirmed) return;
+
+    // Clear conversation
+    AppState.conversation = [];
+    AppState.currentConversationId = null;
+
+    // Reset user preferences to defaults
+    AppState.user = {
+        name: '',
+        colorTheme: 'rose',
+        situation: '',
+        belief: '',
+        lifeStage: '',
+        toneLevel: 3,
+        responseStyle: 'conversational',
+        focusArea: 'emotional'
+    };
+
+    // Reset onboarding state
+    AppState.currentStep = 1;
+
+    // Clear localStorage for guest users
+    if (!AppState.isAuthenticated) {
+        localStorage.removeItem('galBestfriend_state');
+    }
+
+    // Reset color theme to default
+    applyColorTheme('rose');
+
+    // Close any open panels
+    const sidebar = document.getElementById('conversationSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+
+    closeEmojiPicker();
+    closeGifPicker();
+
+    // Reset onboarding UI elements
+    resetOnboardingUI();
+
+    // Navigate to landing page
+    showScreen('landing');
+}
+
+// Reset onboarding UI to initial state
+function resetOnboardingUI() {
+    // Reset name input
+    const nameInput = document.getElementById('userName');
+    if (nameInput) {
+        nameInput.value = '';
+    }
+    const step1Btn = document.getElementById('step1Btn');
+    if (step1Btn) step1Btn.disabled = true;
+
+    // Reset color selection
+    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+    const step2Btn = document.getElementById('step2Btn');
+    if (step2Btn) step2Btn.disabled = true;
+
+    // Reset situation selection
+    document.querySelectorAll('.situation-card').forEach(s => s.classList.remove('selected'));
+    const step3Btn = document.getElementById('step3Btn');
+    if (step3Btn) step3Btn.disabled = true;
+
+    // Reset personalization selections
+    document.querySelectorAll('.belief-option').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.lifestage-option').forEach(l => l.classList.remove('selected'));
+    const step4Btn = document.getElementById('step4Btn');
+    if (step4Btn) step4Btn.disabled = true;
+
+    // Reset tone slider
+    const toneSlider = document.getElementById('toneSlider');
+    const previewText = document.getElementById('previewText');
+    if (toneSlider) {
+        toneSlider.value = 3;
+    }
+    if (previewText) {
+        previewText.textContent = tonePreviewTexts[3];
+    }
+
+    // Show first step
+    showStep(1);
+    updateProgress();
+}
+
 function getToneKey(level) {
     if (level <= 2) return 'gentle';
     if (level <= 4) return 'balanced';
@@ -826,16 +1428,19 @@ function addAIMessage(text, showValidation = false) {
             </div>
             <div class="message-reactions">
                 <button class="reaction-btn" data-reaction="love" onclick="addReaction('${messageId}', 'love')">
-                    <span class="reaction-emoji">❤️</span>
+                    <span class="reaction-emoji">🩷</span><span class="reaction-label">Love</span>
+                </button>
+                <button class="reaction-btn" data-reaction="felt" onclick="addReaction('${messageId}', 'felt')">
+                    <span class="reaction-emoji">🥹</span><span class="reaction-label">Felt that</span>
                 </button>
                 <button class="reaction-btn" data-reaction="helpful" onclick="addReaction('${messageId}', 'helpful')">
-                    <span class="reaction-emoji">💡</span>
+                    <span class="reaction-emoji">✨</span><span class="reaction-label">Helpful</span>
                 </button>
                 <button class="reaction-btn" data-reaction="hug" onclick="addReaction('${messageId}', 'hug')">
-                    <span class="reaction-emoji">🤗</span>
+                    <span class="reaction-emoji">🫶</span><span class="reaction-label">Hug</span>
                 </button>
                 <button class="reaction-btn" data-reaction="thanks" onclick="addReaction('${messageId}', 'thanks')">
-                    <span class="reaction-emoji">🙏</span>
+                    <span class="reaction-emoji">🙏</span><span class="reaction-label">Ty</span>
                 </button>
             </div>
             <div class="message-meta">
@@ -927,6 +1532,12 @@ function initChatInput() {
     // Initialize emoji picker
     initEmojiPicker();
 
+    // Initialize mood ring
+    initMoodRing();
+
+    // Initialize GIF picker
+    initGifPicker();
+
     // Quick prompts
     document.querySelectorAll('.quick-prompt').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -944,6 +1555,9 @@ function sendMessage() {
 
     if (!message || AppState.isTyping) return;
 
+    // Hide empty state when first message is sent
+    hideEmptyState();
+
     // Add user message
     addUserMessage(message);
 
@@ -956,9 +1570,181 @@ function sendMessage() {
     generateResponse(message);
 }
 
+// Hide empty state when conversation starts
+function hideEmptyState() {
+    const emptyState = document.getElementById('emptyState');
+    if (emptyState) {
+        emptyState.classList.add('hidden');
+    }
+}
+
+// Use a starter card to begin conversation
+function useStarter(button) {
+    const prompt = button.dataset.prompt;
+    const textarea = document.getElementById('chatInput');
+
+    // Hide empty state
+    hideEmptyState();
+
+    // Set the prompt in textarea and send
+    textarea.value = prompt;
+    textarea.dispatchEvent(new Event('input'));
+
+    // Small delay for visual feedback then send
+    setTimeout(() => {
+        sendMessage();
+    }, 100);
+}
+
 // ============================================
 // AI RESPONSE GENERATION
 // ============================================
+
+// ============================================
+// GIA'S VALUES & GUIDANCE SYSTEM
+// Gia is a supportive friend who helps women make thoughtful decisions.
+// She doesn't encourage impulsive or potentially harmful behaviors.
+// Instead, she gently redirects toward self-reflection and self-worth.
+// ============================================
+
+const guidancePatterns = {
+    // Casual hookups / body count discussions
+    casualHookups: {
+        patterns: [
+            /body count/i,
+            /hook ?up|hookup/i,
+            /one night stand/i,
+            /casual sex/i,
+            /friends with benefits|fwb/i,
+            /just want to have fun/i,
+            /get under someone|get over.*get under/i,
+            /revenge (hookup|sex|fling)/i,
+            /make him jealous/i,
+            /show him what he('s| is) missing/i
+        ],
+        guidance: {
+            gentle: "I hear that you're looking for connection or maybe wanting to feel desired — those are real, valid feelings. But I want to make sure whatever you choose actually makes you feel good tomorrow, not just tonight. What's driving this feeling right now? Sometimes when we're hurting, we reach for things that feel good in the moment but leave us emptier after.",
+            balanced: "I get the impulse, truly. But real talk — hooking up to feel better or to get back at someone rarely works the way we hope. You deserve to make choices from a place of confidence, not hurt. What would actually help you feel good about yourself right now?",
+            direct: "I'm gonna be honest with you because I care: using hookups to cope, prove something, or get revenge usually backfires. It might feel empowering for a second, but often leaves us feeling worse. What's really going on underneath? Let's address that instead."
+        }
+    },
+
+    // Going back to toxic ex
+    toxicEx: {
+        patterns: [
+            /go back to (him|her|them|my ex)/i,
+            /give (him|her|them) another chance/i,
+            /maybe (he|she|they)'s changed/i,
+            /miss my ex/i,
+            /thinking about (getting back|going back)/i,
+            /he('s| is) different now/i,
+            /but i (still )?love (him|her|them)/i,
+            /we have history/i
+        ],
+        guidance: {
+            gentle: "Missing someone is so natural, especially when you have history together. But I want you to remember why things ended in the first place. Has anything actually changed, or does it just feel that way because the pain of missing them is loud right now? You deserve someone who treats you well consistently, not just when they're trying to win you back.",
+            balanced: "I understand — love doesn't just switch off. But before you go back, I need you to ask yourself: what's actually different? Not what they're saying, but what they're showing. People can promise change, but patterns are hard to break. What would need to be true for going back to be a good decision?",
+            direct: "I know you love him, but love isn't enough if the relationship was hurting you. Going back to someone who mistreated you because you miss them is like re-reading a bad book hoping for a different ending. What made you leave in the first place? Has that actually changed?"
+        }
+    },
+
+    // Revenge or spite behaviors
+    revenge: {
+        patterns: [
+            /get (back at|revenge|even)/i,
+            /make (him|her|them) pay/i,
+            /teach (him|her|them) a lesson/i,
+            /show (him|her|them)/i,
+            /hurt (him|her|them) (like|the way)/i,
+            /he deserves to suffer/i,
+            /karma|petty/i,
+            /post.*make.*jealous/i
+        ],
+        guidance: {
+            gentle: "I completely understand the urge to want them to feel what you felt — that's such a human response to being hurt. But here's what I've seen: revenge keeps us tied to the person who hurt us. The best 'revenge' is actually building a life so good that you forget to check if they noticed. What would moving forward look like for you?",
+            balanced: "The desire for them to hurt too? Totally valid feeling. But acting on it usually keeps you stuck in the pain longer. You'd be giving them real estate in your head rent-free. What would actually help you heal and move forward?",
+            direct: "I get it — you want them to feel consequences. But revenge is like drinking poison hoping the other person gets sick. It keeps YOU focused on THEM. The real power move? Becoming so focused on your own growth that they become irrelevant. What do you actually need to heal?"
+        }
+    },
+
+    // Self-destructive coping
+    destructiveCoping: {
+        patterns: [
+            /drink(ing)? (away|my feelings|to forget)/i,
+            /get (drunk|wasted|high) to/i,
+            /numb (the pain|myself|it)/i,
+            /don't care anymore/i,
+            /what('s| is) the point/i,
+            /doesn't matter anyway/i,
+            /stop eating|not eating/i,
+            /can't (sleep|eat|function)/i
+        ],
+        guidance: {
+            gentle: "I hear so much pain in what you're saying, and my heart goes out to you. But numbing the pain doesn't make it go away — it just delays it. You deserve real support and real healing. What's one small thing that might bring you genuine comfort right now? Not escape, but actual comfort?",
+            balanced: "When we're hurting this much, it makes sense to want to escape. But the coping mechanisms that help us avoid feeling usually make things harder in the long run. What would it look like to sit with this feeling with support instead of running from it?",
+            direct: "I hear you, and I'm worried. Using substances or avoidance to cope just kicks the pain down the road and often adds more. You deserve better than that. What's really going on? Let's talk about what you're actually feeling underneath."
+        }
+    },
+
+    // Rushing into new relationship
+    reboundRush: {
+        patterns: [
+            /already (seeing|dating|talking to) someone/i,
+            /met someone (right after|immediately)/i,
+            /best way to get over.*get under/i,
+            /don't want to be alone/i,
+            /need someone (new|else)/i,
+            /hate being single/i,
+            /he('s| is) (so into me|perfect)/i
+        ],
+        guidance: {
+            gentle: "It's wonderful that someone new is showing you attention — you deserve to feel wanted! I just want to make sure you're giving yourself time to heal before diving in. Sometimes we rush into new connections because being alone with our feelings is hard. How are you feeling about yourself right now, separate from this new person?",
+            balanced: "New attention can feel really good, especially after being hurt. But rebound relationships often carry the baggage of the last one. Have you given yourself time to process what happened? What would it look like to make sure you're choosing this person, not just choosing 'not alone'?",
+            direct: "Real talk: jumping into something new right after heartbreak usually means you're bringing all that unprocessed stuff with you. Are you actually ready for something new, or are you just avoiding sitting with the uncomfortable feelings from the last relationship?"
+        }
+    },
+
+    // Compromising boundaries
+    boundaries: {
+        patterns: [
+            /maybe i('m| am) (too|being) (demanding|needy|much)/i,
+            /lower my standards/i,
+            /expect too much/i,
+            /he says i('m| am) (too|being)/i,
+            /maybe i should just accept/i,
+            /am i asking (for )?too much/i,
+            /he('s| is) right.*(i should|i need to)/i
+        ],
+        guidance: {
+            gentle: "I want to gently push back on that thought. Having standards and boundaries isn't being 'too much' — it's knowing your worth. The right person won't make you feel like your basic needs are unreasonable. What specifically are you being told is 'too much'? Let's look at whether that's actually true.",
+            balanced: "Hold on — who's telling you that you're asking for too much? Having expectations in a relationship is healthy. The question isn't whether you're too demanding; it's whether your needs are being dismissed. What are you actually asking for?",
+            direct: "Stop right there. If someone is making you feel like having standards is a problem, that's a red flag about them, not you. Don't shrink yourself to fit a relationship that doesn't serve you. What boundaries are you being pressured to drop?"
+        }
+    }
+};
+
+function detectGuidanceNeeded(message) {
+    const lower = message.toLowerCase();
+
+    for (const [category, data] of Object.entries(guidancePatterns)) {
+        for (const pattern of data.patterns) {
+            if (pattern.test(message)) {
+                return { category, guidance: data.guidance };
+            }
+        }
+    }
+
+    return null;
+}
+
+function getGuidanceResponse(userMessage) {
+    const guidanceNeeded = detectGuidanceNeeded(userMessage);
+
+    if (!guidanceNeeded) return null;
+
+    const tone = getToneKey(AppState.user.toneLevel);
+    return guidanceNeeded.guidance[tone] || guidanceNeeded.guidance.balanced;
+}
 
 async function generateResponse(userMessage) {
     // Check for crisis keywords first - show support resources immediately
@@ -969,6 +1755,32 @@ async function generateResponse(userMessage) {
             showCrisisSupport();
         }, 1000);
         return; // Still let the AI respond after, but show resources first
+    }
+
+    // Check if guidance is needed for potentially harmful decisions
+    const guidanceResponse = getGuidanceResponse(userMessage);
+    if (guidanceResponse) {
+        // Use guidance response instead of regular response
+        addAIMessage(guidanceResponse, true); // Always show validation for guidance
+        return;
+    }
+
+    // Check if this is a creative/ideas conversation
+    if (AppState.user.situation === 'creative' || detectCreativeContext(userMessage)) {
+        const creativeResponse = getCreativeResponse(userMessage);
+        if (creativeResponse) {
+            addAIMessage(creativeResponse, false);
+            return;
+        }
+    }
+
+    // Check if this is a business/workshop conversation
+    if (AppState.user.situation === 'business' || detectBusinessContext(userMessage)) {
+        const businessResponse = getBusinessResponse(userMessage);
+        if (businessResponse) {
+            addAIMessage(businessResponse, false);
+            return;
+        }
     }
 
     // Check if external AI is connected
@@ -984,7 +1796,27 @@ async function generateResponse(userMessage) {
                 belief: AppState.user.belief,
                 lifeStage: AppState.user.lifeStage,
                 userName: AppState.user.name,
-                history: AppState.conversation.slice(-10)
+                history: AppState.conversation.slice(-10),
+                // Gia's core values for external AI
+                coreValues: {
+                    identity: "You are Gia, a supportive best friend who helps women navigate relationships and life decisions.",
+                    guidelines: [
+                        "Never encourage casual hookups, revenge behavior, or decisions made from hurt/anger",
+                        "Gently redirect discussions about 'body count' or using intimacy to cope/get revenge",
+                        "Encourage self-reflection and self-worth over impulsive decisions",
+                        "If someone wants to go back to a toxic ex, help them examine if anything has truly changed",
+                        "Don't be preachy - be a caring friend who asks good questions",
+                        "Help users make decisions they'll feel good about tomorrow, not just tonight",
+                        "Support healthy boundaries and self-respect",
+                        "When users are hurting, validate feelings but redirect toward healthy coping",
+                        "For creative ideas: be enthusiastic and supportive, help break down big ideas into actionable steps",
+                        "Help users overcome creative blocks by asking clarifying questions and offering practical next steps",
+                        "Encourage users to pursue their creative dreams while being realistic about planning and execution",
+                        "For business/workshop ideas: be an encouraging business coach, help with strategy, pricing, marketing, and mindset",
+                        "Help users overcome imposter syndrome by validating their experience and unique perspective",
+                        "Provide practical, actionable business advice while staying supportive and non-judgmental"
+                    ]
+                }
             };
 
             const response = await window.externalAIHandler(userMessage, context);
@@ -1028,16 +1860,19 @@ function addAIMessageDirect(text) {
         </div>
         <div class="message-reactions">
             <button class="reaction-btn" data-reaction="love" onclick="addReaction('${messageId}', 'love')">
-                <span class="reaction-emoji">❤️</span>
+                <span class="reaction-emoji">🩷</span><span class="reaction-label">Love</span>
+            </button>
+            <button class="reaction-btn" data-reaction="felt" onclick="addReaction('${messageId}', 'felt')">
+                <span class="reaction-emoji">🥹</span><span class="reaction-label">Felt that</span>
             </button>
             <button class="reaction-btn" data-reaction="helpful" onclick="addReaction('${messageId}', 'helpful')">
-                <span class="reaction-emoji">💡</span>
+                <span class="reaction-emoji">✨</span><span class="reaction-label">Helpful</span>
             </button>
             <button class="reaction-btn" data-reaction="hug" onclick="addReaction('${messageId}', 'hug')">
-                <span class="reaction-emoji">🤗</span>
+                <span class="reaction-emoji">🫶</span><span class="reaction-label">Hug</span>
             </button>
             <button class="reaction-btn" data-reaction="thanks" onclick="addReaction('${messageId}', 'thanks')">
-                <span class="reaction-emoji">🙏</span>
+                <span class="reaction-emoji">🙏</span><span class="reaction-label">Ty</span>
             </button>
         </div>
         <div class="message-meta">
@@ -1906,6 +2741,10 @@ setInterval(saveState, 30000);
 
 let speechRecognition = null;
 let isListening = false;
+let userStoppedListening = false;
+let voiceTimeout = null;
+let accumulatedTranscript = '';
+const VOICE_TIMEOUT_MS = 60000; // 60 seconds max listening time
 
 function initVoiceInput() {
     const voiceBtn = document.getElementById('voiceBtn');
@@ -1925,7 +2764,7 @@ function initVoiceInput() {
 
     // Initialize speech recognition
     speechRecognition = new SpeechRecognition();
-    speechRecognition.continuous = false;
+    speechRecognition.continuous = true; // Keep listening until user stops
     speechRecognition.interimResults = true;
     speechRecognition.lang = 'en-US';
     speechRecognition.maxAlternatives = 1;
@@ -1936,6 +2775,7 @@ function initVoiceInput() {
         let finalTranscript = '';
         let interimTranscript = '';
 
+        // Process all results
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
@@ -1945,62 +2785,85 @@ function initVoiceInput() {
             }
         }
 
-        // Update textarea with transcription
+        // Accumulate final transcripts
         if (finalTranscript) {
-            textarea.value = finalTranscript;
+            accumulatedTranscript += finalTranscript + ' ';
+            textarea.value = accumulatedTranscript.trim();
             textarea.dispatchEvent(new Event('input'));
-            voiceFeedback.textContent = 'Got it!';
+            voiceFeedback.textContent = 'Keep talking...';
         } else if (interimTranscript) {
-            textarea.value = interimTranscript;
+            // Show accumulated + current interim
+            textarea.value = (accumulatedTranscript + interimTranscript).trim();
             voiceFeedback.textContent = 'Listening...';
         }
+
+        // Reset timeout on each result
+        resetVoiceTimeout();
     };
 
     // Handle start
     speechRecognition.onstart = () => {
         isListening = true;
+        userStoppedListening = false;
+        accumulatedTranscript = '';
         voiceBtn.classList.add('listening');
         voiceFeedback.textContent = 'Listening...';
         updateHeaderStatus('Listening to you...');
+
+        // Set max listening timeout
+        resetVoiceTimeout();
     };
 
     // Handle end
     speechRecognition.onend = () => {
-        isListening = false;
-        voiceBtn.classList.remove('listening');
-        voiceBtn.classList.remove('processing');
-        updateHeaderStatus('Ready to listen');
+        clearVoiceTimeout();
 
-        // Auto-send if we have content (optional - can be removed)
-        const textarea = document.getElementById('chatInput');
-        if (textarea.value.trim().length > 10) {
-            // Give user a moment to review
-            voiceFeedback.textContent = 'Tap send or keep talking';
+        // Auto-restart if user didn't manually stop and we're still in listening mode
+        if (isListening && !userStoppedListening) {
+            // Brief pause then restart to continue listening
             setTimeout(() => {
-                if (!isListening) {
-                    voiceFeedback.textContent = '';
+                if (isListening && !userStoppedListening) {
+                    try {
+                        speechRecognition.start();
+                    } catch (e) {
+                        // Failed to restart, stop listening
+                        stopListening();
+                    }
                 }
-            }, 2000);
+            }, 100);
+            return;
         }
+
+        stopListening();
     };
 
     // Handle errors
     speechRecognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        isListening = false;
-        voiceBtn.classList.remove('listening');
-        voiceBtn.classList.remove('processing');
+
+        // Don't stop for no-speech errors - just keep listening
+        if (event.error === 'no-speech') {
+            voiceFeedback.textContent = 'Still listening...';
+            return;
+        }
+
+        // Handle aborted errors gracefully (happens on restart)
+        if (event.error === 'aborted') {
+            return;
+        }
+
+        stopListening();
 
         switch (event.error) {
-            case 'no-speech':
-                voiceFeedback.textContent = 'No speech detected';
-                break;
             case 'audio-capture':
                 voiceFeedback.textContent = 'No microphone found';
                 break;
             case 'not-allowed':
                 voiceFeedback.textContent = 'Mic access denied';
                 showMicPermissionHelp();
+                break;
+            case 'network':
+                voiceFeedback.textContent = 'Network error - try again';
                 break;
             default:
                 voiceFeedback.textContent = 'Try again';
@@ -2009,9 +2872,48 @@ function initVoiceInput() {
         setTimeout(() => {
             voiceFeedback.textContent = '';
         }, 3000);
-
-        updateHeaderStatus('Ready to listen');
     };
+}
+
+function resetVoiceTimeout() {
+    clearVoiceTimeout();
+    voiceTimeout = setTimeout(() => {
+        if (isListening) {
+            const voiceFeedback = document.getElementById('voiceFeedback');
+            voiceFeedback.textContent = 'Time limit reached';
+            userStoppedListening = true;
+            speechRecognition.stop();
+        }
+    }, VOICE_TIMEOUT_MS);
+}
+
+function clearVoiceTimeout() {
+    if (voiceTimeout) {
+        clearTimeout(voiceTimeout);
+        voiceTimeout = null;
+    }
+}
+
+function stopListening() {
+    const voiceBtn = document.getElementById('voiceBtn');
+    const voiceFeedback = document.getElementById('voiceFeedback');
+    const textarea = document.getElementById('chatInput');
+
+    isListening = false;
+    voiceBtn.classList.remove('listening');
+    voiceBtn.classList.remove('processing');
+    updateHeaderStatus('Ready to listen');
+    clearVoiceTimeout();
+
+    // Show completion message if we have content
+    if (textarea.value.trim().length > 0) {
+        voiceFeedback.textContent = 'Done! Tap send when ready';
+        setTimeout(() => {
+            voiceFeedback.textContent = '';
+        }, 3000);
+    } else {
+        voiceFeedback.textContent = '';
+    }
 }
 
 function toggleVoiceInput() {
@@ -2028,16 +2930,27 @@ function toggleVoiceInput() {
     }
 
     if (isListening) {
-        // Stop listening
+        // User manually stopping
+        userStoppedListening = true;
         speechRecognition.stop();
     } else {
         // Start listening
+        accumulatedTranscript = '';
+        const textarea = document.getElementById('chatInput');
+        // Keep existing text if any
+        if (textarea.value.trim()) {
+            accumulatedTranscript = textarea.value.trim() + ' ';
+        }
+
         try {
             speechRecognition.start();
         } catch (e) {
             // Already started, restart
+            userStoppedListening = true;
             speechRecognition.stop();
             setTimeout(() => {
+                userStoppedListening = false;
+                accumulatedTranscript = textarea.value.trim() ? textarea.value.trim() + ' ' : '';
                 speechRecognition.start();
             }, 100);
         }

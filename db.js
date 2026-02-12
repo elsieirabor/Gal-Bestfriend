@@ -385,16 +385,19 @@ function renderConversationMessages() {
                 </div>
                 <div class="message-reactions">
                     <button class="reaction-btn" data-reaction="love" onclick="addReaction('${messageId}', 'love')">
-                        <span class="reaction-emoji">❤️</span>
+                        <span class="reaction-emoji">🩷</span><span class="reaction-label">Love</span>
+                    </button>
+                    <button class="reaction-btn" data-reaction="felt" onclick="addReaction('${messageId}', 'felt')">
+                        <span class="reaction-emoji">🥹</span><span class="reaction-label">Felt that</span>
                     </button>
                     <button class="reaction-btn" data-reaction="helpful" onclick="addReaction('${messageId}', 'helpful')">
-                        <span class="reaction-emoji">💡</span>
+                        <span class="reaction-emoji">✨</span><span class="reaction-label">Helpful</span>
                     </button>
                     <button class="reaction-btn" data-reaction="hug" onclick="addReaction('${messageId}', 'hug')">
-                        <span class="reaction-emoji">🤗</span>
+                        <span class="reaction-emoji">🫶</span><span class="reaction-label">Hug</span>
                     </button>
                     <button class="reaction-btn" data-reaction="thanks" onclick="addReaction('${messageId}', 'thanks')">
-                        <span class="reaction-emoji">🙏</span>
+                        <span class="reaction-emoji">🙏</span><span class="reaction-label">Ty</span>
                     </button>
                 </div>
                 <div class="message-meta">
