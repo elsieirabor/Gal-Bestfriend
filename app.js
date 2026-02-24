@@ -69,7 +69,22 @@ const motivationalQuotes = [
     "It's okay to outgrow people, places, and old versions of yourself.",
     "Your worth isn't measured by your productivity.",
     "Closure is something you give yourself.",
-    "You're not behind in life. You're on your own timeline."
+    "You're not behind in life. You're on your own timeline.",
+    // College-specific quotes
+    "C's get degrees, but your mental health matters more than any GPA.",
+    "You're not failing at college — you're figuring it out like everyone else.",
+    "Comparison is the thief of joy. Their highlight reel isn't their real life.",
+    "You don't have to have it all figured out by 22. Or 25. Or ever.",
+    "Your worth isn't measured by your class rank or internship status.",
+    "Everyone's winging it. Some people are just better at pretending.",
+    "You're allowed to change your major, your friend group, and your mind.",
+    "The freshman version of you would be proud of how far you've come.",
+    "Not everyone from high school needs to stay in your college chapter.",
+    "You're not behind. You're exactly where you need to be right now.",
+    "A bad semester doesn't define your future. Give yourself grace.",
+    "Your path doesn't have to look like anyone else's path.",
+    "It's okay to not be thriving 24/7. Surviving counts too.",
+    "The people who matter won't make you feel bad for prioritizing yourself."
 ];
 
 // Fun jokes and light moments
@@ -85,6 +100,78 @@ const friendlyJokes = [
     "They say communication is key. But have you tried sending memes? Much easier. 📱",
     "Plot twist: You were the main character this whole time. 💫"
 ];
+
+// ============================================
+// ANALYTICS (for pilot reporting)
+// ============================================
+
+const Analytics = {
+    events: [],
+
+    track(eventName, data = {}) {
+        const event = {
+            event: eventName,
+            timestamp: new Date().toISOString(),
+            sessionId: this.getSessionId(),
+            ...data
+        };
+        this.events.push(event);
+
+        // Store locally (can connect to backend later)
+        this.persist();
+
+        // Log for debugging during pilot
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('[Analytics]', eventName, data);
+        }
+    },
+
+    getSessionId() {
+        let sessionId = sessionStorage.getItem('gal_session_id');
+        if (!sessionId) {
+            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('gal_session_id', sessionId);
+        }
+        return sessionId;
+    },
+
+    persist() {
+        try {
+            const stored = JSON.parse(localStorage.getItem('gal_analytics') || '[]');
+            stored.push(...this.events);
+            // Keep last 500 events max to avoid storage limits
+            const trimmed = stored.slice(-500);
+            localStorage.setItem('gal_analytics', JSON.stringify(trimmed));
+            this.events = [];
+        } catch (e) {
+            console.warn('Analytics persist failed:', e);
+        }
+    },
+
+    // Export for pilot reports
+    exportData() {
+        return JSON.parse(localStorage.getItem('gal_analytics') || '[]');
+    },
+
+    // Get summary stats for pilot dashboard
+    getSummary() {
+        const events = this.exportData();
+        const sessions = new Set(events.map(e => e.sessionId)).size;
+        const conversations = events.filter(e => e.event === 'conversation_started').length;
+        const messages = events.filter(e => e.event === 'message_sent').length;
+        const startersUsed = events.filter(e => e.event === 'starter_used').length;
+        const crisisDetected = events.filter(e => e.event === 'crisis_detected').length;
+
+        return {
+            totalSessions: sessions,
+            totalConversations: conversations,
+            totalMessages: messages,
+            startersUsed: startersUsed,
+            crisisDetections: crisisDetected,
+            avgMessagesPerSession: sessions > 0 ? (messages / sessions).toFixed(1) : 0
+        };
+    }
+};
 
 // Warm welcome back messages for returning users
 const welcomeBackMessages = {
@@ -116,24 +203,43 @@ const responseTemplates = {
         direct: (name) => `Hey ${name}. I'm Gia. Let's get into it — what's happening?`
     },
     situations: {
+        roommate: {
+            prompts: [
+                "Ugh, roommate stuff is the worst. What's been going on?",
+                "Living with someone can be so hard. Tell me what happened.",
+                "Is this something new or has the tension been building for a while?",
+                "How's the vibe in your space right now — awkward, tense, or full-on hostile?"
+            ]
+        },
         friendship: {
             prompts: [
-                "Tell me more about this friendship. How long have you two been close?",
-                "What changed recently that brought this up?",
-                "How are you feeling about it right now — more hurt, confused, or frustrated?"
+                "Friend drama hits different. What's going on with the group?",
+                "Tell me more — is this with one person or the whole friend group?",
+                "How are you feeling about it right now — more hurt, confused, or frustrated?",
+                "Are you feeling left out, or is there actual conflict happening?"
             ]
         },
         romantic: {
             prompts: [
-                "How long have you two been together?",
+                "Okay, give me the full picture — what's the situation?",
+                "Is this a defined relationship or more of a situationship?",
                 "What's the main thing that's been weighing on you?",
-                "Is this a pattern, or did something specific happen?"
+                "Is this a pattern with them, or did something specific happen?"
+            ]
+        },
+        academic: {
+            prompts: [
+                "School stress is so real. What's weighing on you?",
+                "Is this about one class or is everything feeling like too much?",
+                "That imposter syndrome feeling is the worst. Tell me what's going on.",
+                "Are you more stressed about the work itself, or worried about what people will think?"
             ]
         },
         family: {
             prompts: [
-                "Family stuff can be so complicated. Who's involved in this situation?",
-                "Has this been building up for a while, or is it something recent?",
+                "Family stuff from a distance can be so complicated. What's happening?",
+                "Is this about expectations, or is something else going on?",
+                "Are you feeling pressure from home while trying to do your own thing?",
                 "How is this affecting you day-to-day?"
             ]
         },
@@ -141,7 +247,8 @@ const responseTemplates = {
             prompts: [
                 "I'm here. Let it all out — what's on your mind?",
                 "Sometimes we just need to process. What's the main thing you're feeling?",
-                "Take your time. What do you need right now — to vent, to think out loud, or to get advice?"
+                "Take your time. What do you need right now — to vent, to think out loud, or to get advice?",
+                "Are you overwhelmed, anxious, or just feeling off? I'm here for all of it."
             ]
         },
         creative: {
@@ -276,6 +383,9 @@ function detectCrisis(message) {
 }
 
 function showCrisisSupport() {
+    // Track crisis detection (important for pilot safety reporting)
+    Analytics.track('crisis_detected');
+
     const messagesContainer = document.getElementById('chatMessages');
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -845,6 +955,13 @@ function initToneSlider() {
 async function initializeChat() {
     const messagesContainer = document.getElementById('chatMessages');
 
+    // Track conversation start
+    Analytics.track('conversation_started', {
+        situation: AppState.user.situation,
+        lifeStage: AppState.user.lifeStage,
+        toneLevel: AppState.user.toneLevel
+    });
+
     // Sync tone slider in settings
     const chatToneSlider = document.getElementById('chatToneSlider');
     chatToneSlider.value = AppState.user.toneLevel;
@@ -1307,6 +1424,12 @@ function sendMessage() {
 
     if (!message || AppState.isTyping) return;
 
+    // Track message sent
+    Analytics.track('message_sent', {
+        messageLength: message.length,
+        situation: AppState.user.situation
+    });
+
     // Hide empty state when first message is sent
     hideEmptyState();
 
@@ -1334,6 +1457,11 @@ function hideEmptyState() {
 function useStarter(button) {
     const prompt = button.dataset.prompt;
     const textarea = document.getElementById('chatInput');
+
+    // Track starter usage
+    Analytics.track('starter_used', {
+        prompt: prompt.substring(0, 50) // First 50 chars for privacy
+    });
 
     // Hide empty state
     hideEmptyState();
