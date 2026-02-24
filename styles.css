@@ -4024,6 +4024,14 @@ html {
     color: var(--burgundy);
 }
 
+.sidebar-hint {
+    padding: 0 var(--space-lg);
+    margin: 0 0 var(--space-md) 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
 .sidebar-close {
     display: flex;
     align-items: center;
@@ -4227,33 +4235,44 @@ html {
     height: 18px;
 }
 
-/* Header Menu Button */
-.header-menu {
+/* Header History Button */
+.header-history {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: transparent;
-    border: 1.5px solid var(--blush);
+    gap: 6px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg,
+        hsl(var(--primary-h), 45%, 92%) 0%,
+        hsl(var(--primary-h), 35%, 88%) 100%);
+    border: 1.5px solid hsl(var(--primary-h), 30%, 80%);
     border-radius: var(--radius-full);
     cursor: pointer;
     transition: all var(--transition-fast);
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
-.header-menu:hover {
-    background: var(--blush);
-    color: var(--burgundy);
+.header-history:hover {
+    background: linear-gradient(135deg,
+        hsl(var(--primary-h), 55%, 88%) 0%,
+        hsl(var(--primary-h), 45%, 82%) 100%);
+    transform: scale(1.02);
 }
 
-.header-menu svg {
-    width: 18px;
-    height: 18px;
+.header-history svg {
+    width: 16px;
+    height: 16px;
 }
 
-/* Hide menu button for guests */
-.guest-mode .header-menu {
+.header-history span {
+    letter-spacing: 0.02em;
+}
+
+/* Hide history button for guests */
+.guest-mode .header-history {
     display: none;
 }
 
