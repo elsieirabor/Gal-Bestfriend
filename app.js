@@ -173,6 +173,45 @@ const Analytics = {
     }
 };
 
+// ============================================
+// RESPONSE VARIETY SYSTEM (avoid repetition)
+// ============================================
+
+const ResponseVariety = {
+    recentlyUsed: [],
+    maxHistory: 15,
+
+    // Pick a random item from array, avoiding recently used
+    pick(options, category = 'general') {
+        if (!Array.isArray(options)) return options;
+        if (options.length === 1) return options[0];
+
+        // Filter out recently used responses
+        const available = options.filter(opt =>
+            !this.recentlyUsed.some(r => r.text === opt && r.category === category)
+        );
+
+        // If all options were recently used, reset and use all
+        const pool = available.length > 0 ? available : options;
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+
+        // Track this response
+        this.recentlyUsed.push({ text: chosen, category, time: Date.now() });
+
+        // Keep history limited
+        if (this.recentlyUsed.length > this.maxHistory) {
+            this.recentlyUsed.shift();
+        }
+
+        return chosen;
+    },
+
+    // Clear history (e.g., on new conversation)
+    reset() {
+        this.recentlyUsed = [];
+    }
+};
+
 // Warm welcome back messages for returning users
 const welcomeBackMessages = {
     gentle: (name) => [
@@ -1071,6 +1110,9 @@ function markUserVisit() {
 async function startNewConversation() {
     const messagesContainer = document.getElementById('chatMessages');
 
+    // Reset response variety tracking for fresh conversation
+    ResponseVariety.reset();
+
     // Clear current conversation from state
     AppState.conversation = [];
     AppState.currentConversationId = null;
@@ -1922,68 +1964,311 @@ function buildAcknowledgment(analysis, tone, userMessage) {
     const mainPerson = analysis.people.find(p => p.person !== 'he' && p.person !== 'she' && p.person !== 'they')
         || analysis.people[0];
 
-    // Acknowledge their emotions first
+    // Acknowledge their emotions first (multiple options per emotion for variety)
     if (analysis.emotions.length > 0) {
         const emotionAcks = {
             gentle: {
-                angry: "I can hear how angry you are, and that anger is valid.",
-                frustrated: "That frustration makes complete sense.",
-                sad: "I'm sorry you're feeling so sad right now.",
-                hurt: "That sounds really painful, and I'm sorry you're hurting.",
-                anxious: "It's understandable to feel anxious about this.",
-                confused: "It makes sense that you're feeling confused.",
-                lonely: "Feeling lonely like that is really hard.",
-                embarrassed: "That sounds like a really uncomfortable situation.",
-                jealous: "Those feelings are natural, even when they're uncomfortable.",
-                guilty: "It sounds like you're being really hard on yourself.",
-                betrayed: "Feeling betrayed like that cuts deep. I'm sorry.",
-                disappointed: "That disappointment is real and valid.",
-                exhausted: "It sounds like this has been wearing you down.",
-                hopeless: "When things feel hopeless, everything is harder. I hear you.",
-                preoccupied: "It's hard when something takes up so much space in your head.",
-                overwhelmed: "That's a lot to process. No wonder you're feeling overwhelmed."
+                angry: [
+                    "I can hear how angry you are, and that anger is valid.",
+                    "That anger makes sense. You have every right to feel that way.",
+                    "I hear the frustration in what you're saying. Your anger is telling you something important.",
+                    "It sounds like this really set you off — and honestly, who wouldn't be angry?"
+                ],
+                frustrated: [
+                    "That frustration makes complete sense.",
+                    "I can feel the frustration coming through. That's exhausting.",
+                    "Ugh, that sounds so frustrating. I get it.",
+                    "No wonder you're frustrated — anyone would be."
+                ],
+                sad: [
+                    "I'm sorry you're feeling so sad right now.",
+                    "That sadness is real. I'm here with you.",
+                    "It's okay to feel sad about this. It matters to you.",
+                    "I can hear how much this is hurting your heart."
+                ],
+                hurt: [
+                    "That sounds really painful, and I'm sorry you're hurting.",
+                    "Ouch. That kind of hurt doesn't just go away easily.",
+                    "I'm sorry you're carrying that pain right now.",
+                    "That's a real wound. It makes sense that you're hurting."
+                ],
+                anxious: [
+                    "It's understandable to feel anxious about this.",
+                    "That anxiety is your mind trying to protect you. It's exhausting though.",
+                    "The worry makes sense given everything you're dealing with.",
+                    "I hear you — that anxious feeling is so hard to shake."
+                ],
+                confused: [
+                    "It makes sense that you're feeling confused.",
+                    "Yeah, this is a lot to make sense of.",
+                    "No wonder you're confused — there's so much to untangle here.",
+                    "That confusion is valid. This situation isn't straightforward."
+                ],
+                lonely: [
+                    "Feeling lonely like that is really hard.",
+                    "That loneliness is so heavy. I'm here though.",
+                    "Feeling alone in this is painful. You're not alone right now.",
+                    "I hear you. That kind of lonely hits different."
+                ],
+                embarrassed: [
+                    "That sounds like a really uncomfortable situation.",
+                    "Ugh, that cringe feeling is the worst. I'm sorry.",
+                    "That's such an awkward position to be in.",
+                    "I can feel the embarrassment through the screen. That's rough."
+                ],
+                jealous: [
+                    "Those feelings are natural, even when they're uncomfortable.",
+                    "Jealousy is uncomfortable, but it's telling you something matters.",
+                    "Those jealous feelings make sense. They're hard to sit with.",
+                    "It's okay to feel jealous. It doesn't make you a bad person."
+                ],
+                guilty: [
+                    "It sounds like you're being really hard on yourself.",
+                    "That guilt is weighing on you. Let's look at it together.",
+                    "I hear the guilt in your words. You're not a bad person.",
+                    "You're carrying a lot of guilt. That's heavy."
+                ],
+                betrayed: [
+                    "Feeling betrayed like that cuts deep. I'm sorry.",
+                    "That betrayal is serious. No wonder you're shaken.",
+                    "Trust being broken like that — it hurts on a different level.",
+                    "That's a deep cut. Betrayal changes how you see everything."
+                ],
+                disappointed: [
+                    "That disappointment is real and valid.",
+                    "I can hear how let down you feel.",
+                    "Disappointment like that sits heavy.",
+                    "You had expectations, and they weren't met. That hurts."
+                ],
+                exhausted: [
+                    "It sounds like this has been wearing you down.",
+                    "You sound so tired from all of this.",
+                    "That exhaustion is real. This has taken a lot out of you.",
+                    "You've been carrying this for a while. No wonder you're drained."
+                ],
+                hopeless: [
+                    "When things feel hopeless, everything is harder. I hear you.",
+                    "Feeling stuck like this is so defeating. I'm here though.",
+                    "That hopeless feeling is lying to you, but I know it feels real right now.",
+                    "It's hard to see a way forward when you're in the middle of it."
+                ],
+                preoccupied: [
+                    "It's hard when something takes up so much space in your head.",
+                    "Living rent-free in your mind, huh? That's exhausting.",
+                    "When you can't stop thinking about something, everything else suffers.",
+                    "Your brain is stuck on repeat. I get it."
+                ],
+                overwhelmed: [
+                    "That's a lot to process. No wonder you're feeling overwhelmed.",
+                    "There's so much coming at you right now. Of course you're overwhelmed.",
+                    "When everything hits at once, it's hard to know where to start.",
+                    "That overwhelm is valid. You're dealing with a lot."
+                ]
             },
             balanced: {
-                angry: "I get why you're angry — that would set anyone off.",
-                frustrated: "That sounds really frustrating.",
-                sad: "That's genuinely sad, and it's okay to feel that way.",
-                hurt: "That's hurtful. No wonder you're upset.",
-                anxious: "I understand the anxiety around this.",
-                confused: "Yeah, that's confusing. There's a lot to untangle here.",
-                lonely: "Loneliness is tough, especially in situations like this.",
-                embarrassed: "That's an awkward spot to be in.",
-                jealous: "Jealousy can be uncomfortable but it's telling you something.",
-                guilty: "Sounds like the guilt is weighing on you.",
-                betrayed: "That's a betrayal. That's serious.",
-                disappointed: "That's disappointing, no question.",
-                exhausted: "You sound exhausted by this whole thing.",
-                hopeless: "Feeling stuck is the worst. Let's see what we can do.",
-                preoccupied: "It's clearly living rent-free in your head right now.",
-                overwhelmed: "That's overwhelming. Let's break it down."
+                angry: [
+                    "I get why you're angry — that would set anyone off.",
+                    "Yeah, that's infuriating. Your anger makes sense.",
+                    "Honestly? I'd be angry too.",
+                    "That anger is justified. Let's talk about it."
+                ],
+                frustrated: [
+                    "That sounds really frustrating.",
+                    "Ugh, I feel the frustration from here.",
+                    "That's frustrating as hell, honestly.",
+                    "I get it — this whole thing is frustrating."
+                ],
+                sad: [
+                    "That's genuinely sad, and it's okay to feel that way.",
+                    "Yeah, that's a sad situation. I'm sorry.",
+                    "That hits hard. It makes sense you're sad.",
+                    "It's okay to be sad about this. It matters."
+                ],
+                hurt: [
+                    "That's hurtful. No wonder you're upset.",
+                    "Ouch. That would hurt anyone.",
+                    "That's a painful thing to go through.",
+                    "I can see why that hurt you. It wasn't okay."
+                ],
+                anxious: [
+                    "I understand the anxiety around this.",
+                    "That anxiety makes sense given everything.",
+                    "The worry is real. I hear you.",
+                    "Yeah, that would make anyone anxious."
+                ],
+                confused: [
+                    "Yeah, that's confusing. There's a lot to untangle here.",
+                    "I'm confused just hearing it. Let's figure it out.",
+                    "Mixed signals like that are maddening.",
+                    "That's genuinely confusing. Let's break it down."
+                ],
+                lonely: [
+                    "Loneliness is tough, especially in situations like this.",
+                    "That lonely feeling hits hard.",
+                    "Feeling isolated in this sucks.",
+                    "It's hard when you feel like no one gets it."
+                ],
+                embarrassed: [
+                    "That's an awkward spot to be in.",
+                    "Oof. That's embarrassing. I'm sorry.",
+                    "The secondhand cringe is real. That's rough.",
+                    "Awkward situations like that are the worst."
+                ],
+                jealous: [
+                    "Jealousy can be uncomfortable but it's telling you something.",
+                    "That jealousy is pointing at something. Let's look at it.",
+                    "Jealous feelings suck, but they're information.",
+                    "I hear you. Jealousy is hard to shake."
+                ],
+                guilty: [
+                    "Sounds like the guilt is weighing on you.",
+                    "That guilt is heavy. Let's talk about whether it's earned.",
+                    "You're being hard on yourself. Is it warranted?",
+                    "The guilt is eating at you, I can tell."
+                ],
+                betrayed: [
+                    "That's a betrayal. That's serious.",
+                    "Trust broken like that — it's a big deal.",
+                    "That's a real betrayal. No wonder you're shaken.",
+                    "Damn. That's betrayal, straight up."
+                ],
+                disappointed: [
+                    "That's disappointing, no question.",
+                    "I hear the disappointment. That sucks.",
+                    "You expected better. That letdown is real.",
+                    "Disappointment like that stings."
+                ],
+                exhausted: [
+                    "You sound exhausted by this whole thing.",
+                    "This has drained you. I can hear it.",
+                    "That exhaustion is valid. This is a lot.",
+                    "You're running on empty with this, huh?"
+                ],
+                hopeless: [
+                    "Feeling stuck is the worst. Let's see what we can do.",
+                    "I hear you. It feels like there's no way out.",
+                    "When you're in the thick of it, hope is hard to find.",
+                    "Feeling hopeless sucks. But you reached out, so let's work on it."
+                ],
+                preoccupied: [
+                    "It's clearly living rent-free in your head right now.",
+                    "You can't stop thinking about it. That's draining.",
+                    "When something takes over your brain like that, it's exhausting.",
+                    "It's on loop in your mind, huh?"
+                ],
+                overwhelmed: [
+                    "That's overwhelming. Let's break it down.",
+                    "There's a lot happening. No wonder you're overwhelmed.",
+                    "When it all piles up like this, it's hard to think.",
+                    "That's too much at once. Let's take it piece by piece."
+                ]
             },
             direct: {
-                angry: "You're pissed. I get it.",
-                frustrated: "Frustrating as hell, yeah.",
-                sad: "That sucks. It's okay to be sad about it.",
-                hurt: "That's painful. No sugarcoating it.",
-                anxious: "The anxiety makes sense here.",
-                confused: "Confusing situation. Let's figure it out.",
-                lonely: "Feeling alone in this is rough.",
-                embarrassed: "Awkward situation. Let's deal with it.",
-                jealous: "Jealousy's hitting — let's look at why.",
-                guilty: "The guilt is eating at you.",
-                betrayed: "That's betrayal, plain and simple.",
-                disappointed: "Disappointing. Let's talk about what to do.",
-                exhausted: "You're drained. I hear it.",
-                hopeless: "Feeling stuck. But you're here, so let's work on it.",
-                preoccupied: "Can't stop thinking about it, huh?",
-                overwhelmed: "A lot going on. Let's tackle it."
+                angry: [
+                    "You're pissed. I get it.",
+                    "Yeah, you're mad. Makes sense.",
+                    "That's rage. Totally valid.",
+                    "You're angry. Let's figure out what to do with that."
+                ],
+                frustrated: [
+                    "Frustrating as hell, yeah.",
+                    "That's annoying af. I hear you.",
+                    "Frustration level: through the roof. Got it.",
+                    "Yeah, that would frustrate anyone."
+                ],
+                sad: [
+                    "That sucks. It's okay to be sad about it.",
+                    "That's sad. No way around it.",
+                    "Yeah, that's a bummer. Feel your feelings.",
+                    "It's a sad situation. I'm sorry."
+                ],
+                hurt: [
+                    "That's painful. No sugarcoating it.",
+                    "Ouch. That hurt. Valid.",
+                    "That stings. I get it.",
+                    "Pain like that is real. Let's talk about it."
+                ],
+                anxious: [
+                    "The anxiety makes sense here.",
+                    "Yeah, that's anxiety-inducing. Makes sense.",
+                    "Anxious about it? Of course you are.",
+                    "That worry is justified."
+                ],
+                confused: [
+                    "Confusing situation. Let's figure it out.",
+                    "Mixed signals are the worst. Let's decode this.",
+                    "That makes no sense. Let's untangle it.",
+                    "Confusing? Yeah. Let's make it clearer."
+                ],
+                lonely: [
+                    "Feeling alone in this is rough.",
+                    "That loneliness is real. I'm here though.",
+                    "Isolated in this? That sucks.",
+                    "Feeling like no one gets it. I hear you."
+                ],
+                embarrassed: [
+                    "Awkward situation. Let's deal with it.",
+                    "Cringe moment. It happens. Let's move on.",
+                    "That's embarrassing. But it's not the end.",
+                    "Awkward. Yeah. Now what?"
+                ],
+                jealous: [
+                    "Jealousy's hitting — let's look at why.",
+                    "You're jealous. What's that about?",
+                    "Jealousy sucks. What's driving it?",
+                    "Those jealous feelings — let's dig in."
+                ],
+                guilty: [
+                    "The guilt is eating at you.",
+                    "You feel guilty. Is it warranted or not?",
+                    "Guilt is heavy. Let's look at it honestly.",
+                    "That guilt — deserved or self-inflicted?"
+                ],
+                betrayed: [
+                    "That's betrayal, plain and simple.",
+                    "They betrayed you. Full stop.",
+                    "Betrayal. That's what this is.",
+                    "Trust broken. That's serious."
+                ],
+                disappointed: [
+                    "Disappointing. Let's talk about what to do.",
+                    "That's a letdown. I get it.",
+                    "You expected more. You didn't get it.",
+                    "Disappointed. Valid. Now what?"
+                ],
+                exhausted: [
+                    "You're drained. I hear it.",
+                    "Exhausted from all this. Makes sense.",
+                    "Running on empty? Yeah, I can tell.",
+                    "This has worn you out. I hear you."
+                ],
+                hopeless: [
+                    "Feeling stuck. But you're here, so let's work on it.",
+                    "Hopeless right now. But let's see what's possible.",
+                    "Feels like no way out? Let's find one.",
+                    "Stuck. I get it. But you reached out, so there's hope."
+                ],
+                preoccupied: [
+                    "Can't stop thinking about it, huh?",
+                    "It's in your head 24/7. That's exhausting.",
+                    "Obsessing over it? Let's break the loop.",
+                    "Living in your head rent-free. Let's evict it."
+                ],
+                overwhelmed: [
+                    "A lot going on. Let's tackle it.",
+                    "Overwhelmed? Yeah. Let's simplify.",
+                    "Too much at once. Let's prioritize.",
+                    "It's a lot. Let's break it down."
+                ]
             }
         };
 
         const primaryEmotion = analysis.emotions[0];
-        const ack = emotionAcks[tone][primaryEmotion];
-        if (ack) parts.push(ack);
+        const ackOptions = emotionAcks[tone][primaryEmotion];
+        if (ackOptions) {
+            const ack = ResponseVariety.pick(ackOptions, `emotion_${primaryEmotion}`);
+            parts.push(ack);
+        }
     }
 
     // Acknowledge what happened specifically
@@ -2085,50 +2370,125 @@ function buildAdvice(analysis, tone, focus, userMessage) {
 }
 
 function buildQuestionResponse(analysis, tone, message) {
-    // "Should I" questions
+    // "Should I" questions about texting/reaching out
     if (message.includes('should i text') || message.includes('should i message') || message.includes('should i reach out')) {
         const responses = {
-            gentle: "Before reaching out, check in with yourself — what do you hope to get from that conversation? Make sure you're in a space where any response (or non-response) won't knock you off your feet.",
-            balanced: "Here's my take: only reach out if you're okay with any outcome — including silence. What would you want to say if you did text?",
-            direct: "Real question: what do you actually want from texting them? If you're hoping for a specific response, you might be setting yourself up. What's your gut saying?"
+            gentle: [
+                "Before reaching out, check in with yourself — what do you hope to get from that conversation?",
+                "Ask yourself: are you reaching out for you, or because you're hoping for a specific response?",
+                "What would you want to say if you did reach out? And can you handle any response, including silence?",
+                "Take a moment — are you in a good headspace to handle however they might respond?"
+            ],
+            balanced: [
+                "Here's my take: only reach out if you're okay with any outcome — including silence.",
+                "What's your gut saying? And are you prepared for any response?",
+                "The real question: what do you want from reaching out? Be honest with yourself.",
+                "What would you say? And more importantly, why do you want to say it?"
+            ],
+            direct: [
+                "Real question: what do you actually want from texting them?",
+                "If you're hoping for a specific response, you might be setting yourself up. What's your gut saying?",
+                "Be honest — are you reaching out because you want to, or because you're hoping they'll say something specific?",
+                "What's the best case scenario? And can you handle the worst case?"
+            ]
         };
-        return responses[tone];
+        return ResponseVariety.pick(responses[tone], 'question_text');
     }
 
-    if (message.includes('should i forgive') || message.includes('should i give') && message.includes('chance')) {
+    if (message.includes('should i forgive') || (message.includes('should i give') && message.includes('chance'))) {
         const responses = {
-            gentle: "Forgiveness is a personal journey, not an obligation. It's okay to take all the time you need. What would forgiving look like for you? It doesn't have to mean going back to how things were.",
-            balanced: "Forgiveness isn't about them — it's about whether holding onto this is serving you. But forgiving doesn't mean forgetting or even reconciling. What do YOU need to move forward?",
-            direct: "Here's the real question: has anything actually changed? Forgiveness without change just sets you up to get hurt the same way again. What's different now?"
+            gentle: [
+                "Forgiveness is a personal journey, not an obligation. What would forgiving look like for you?",
+                "You don't have to decide right now. What do you need to feel safe before considering forgiveness?",
+                "Forgiveness doesn't have to mean going back to how things were. What would feel right for you?",
+                "Take your time. What would you need from them to even consider it?"
+            ],
+            balanced: [
+                "Forgiveness isn't about them — it's about whether holding onto this is serving you.",
+                "Forgiving doesn't mean forgetting. What do YOU need to move forward?",
+                "The question isn't whether they deserve forgiveness — it's what's best for you.",
+                "Have they actually changed? Or are you being asked to accept the same thing again?"
+            ],
+            direct: [
+                "Here's the real question: has anything actually changed?",
+                "Forgiveness without change just sets you up to get hurt the same way. What's different now?",
+                "Are they sorry, or are they sorry they got caught? Big difference.",
+                "What would need to be true for you to trust them again? Has that happened?"
+            ]
         };
-        return responses[tone];
+        return ResponseVariety.pick(responses[tone], 'question_forgive');
     }
 
     if (message.includes('should i break up') || message.includes('should i end') || message.includes('should i leave')) {
         const responses = {
-            gentle: "That's such a big decision, and only you can make it. But ask yourself: when you imagine your life six months from now, what feels more like relief? Staying or leaving?",
-            balanced: "Big question. Here's what I'd ask: Is this a rough patch in an otherwise good relationship, or is this the relationship? There's a difference between fighting FOR something and just fighting.",
-            direct: "Here's how I'd think about it: Are you trying to fix something fixable, or are you just avoiding the pain of ending it? Sometimes we stay because leaving is hard, not because staying is right."
+            gentle: [
+                "That's such a big decision. When you imagine your life six months from now, what feels more like relief?",
+                "Only you can make this call. What does your gut say when everything else is quiet?",
+                "What would you tell a friend in your exact situation?",
+                "What are you hoping the relationship will become? Is that realistic?"
+            ],
+            balanced: [
+                "Big question. Is this a rough patch, or is this just the relationship? There's a difference.",
+                "Are you fighting FOR the relationship, or just fighting?",
+                "What's keeping you there? Love, comfort, or fear of leaving?",
+                "If nothing changed in the next year, would you be okay with that?"
+            ],
+            direct: [
+                "Are you trying to fix something fixable, or avoiding the pain of ending it?",
+                "Sometimes we stay because leaving is hard, not because staying is right. Which is this?",
+                "Real talk: if you took away the history and started fresh, would you choose this person?",
+                "What are you actually getting from this relationship right now?"
+            ]
         };
-        return responses[tone];
+        return ResponseVariety.pick(responses[tone], 'question_breakup');
     }
 
-    if (message.includes('am i wrong') || message.includes('am i overreacting') || message.includes('am i crazy')) {
+    if (message.includes('am i wrong') || message.includes('am i overreacting') || message.includes('am i crazy') || message.includes('am i dramatic')) {
         const responses = {
-            gentle: "Your feelings are not wrong — they're information. Even if your reaction feels big, it's pointing to something real that matters to you. What do you think triggered such a strong response?",
-            balanced: "You're not crazy for feeling what you feel. The question isn't whether your reaction is 'right' — it's whether it matches what actually happened. Walk me through it.",
-            direct: "Let's figure that out together. Tell me exactly what happened and how you reacted. Sometimes we overreact, sometimes people gaslight us into thinking we are. Let's look at the facts."
+            gentle: [
+                "Your feelings are not wrong — they're information. What do you think triggered this response?",
+                "Even if your reaction feels big, it's pointing to something real. What is it?",
+                "Your feelings are valid. Let's look at what's underneath them.",
+                "You're not crazy for feeling what you feel. What happened that made you feel this way?"
+            ],
+            balanced: [
+                "You're not crazy. The question is whether your reaction matches what actually happened.",
+                "Let's look at this objectively. Walk me through exactly what happened.",
+                "Sometimes we overreact, sometimes people gaslight us into thinking we do. Let's figure it out.",
+                "Your feelings are real. Whether they match the situation is what we need to figure out."
+            ],
+            direct: [
+                "Let's figure that out together. Tell me exactly what happened.",
+                "Sometimes people gaslight us into thinking we're overreacting. Let's look at the facts.",
+                "Be specific — what happened and how did you respond?",
+                "Give me the facts. Then we'll figure out if your reaction was proportional."
+            ]
         };
-        return responses[tone];
+        return ResponseVariety.pick(responses[tone], 'question_overreacting');
     }
 
     // Generic question response
     const genericResponses = {
-        gentle: "That's a really important question to be asking yourself. What does your intuition say, underneath all the noise?",
-        balanced: "Good question. Let's think through it — what are the actual options here, and what are the real consequences of each?",
-        direct: "Alright, let's work through this. What are you really asking — and what answer are you hoping I won't give you?"
+        gentle: [
+            "That's a really important question. What does your intuition say?",
+            "Good question. What do you think the answer is, deep down?",
+            "Sit with that question for a moment. What comes up for you?",
+            "What would you tell a friend who asked you that same question?"
+        ],
+        balanced: [
+            "Good question. Let's think through it — what are the actual options here?",
+            "What do you think? I want to hear your gut reaction first.",
+            "Let's break it down. What are the real consequences of each choice?",
+            "What's your instinct saying? Sometimes we already know."
+        ],
+        direct: [
+            "Alright, let's work through this. What are you really asking?",
+            "What answer are you hoping I won't give you?",
+            "You probably already know the answer. What is it?",
+            "Let's cut to it — what does your gut say?"
+        ]
     };
-    return genericResponses[tone];
+    return ResponseVariety.pick(genericResponses[tone], 'question_generic');
 }
 
 function buildSituationalAdvice(analysis, tone, focus, message) {
@@ -2140,77 +2500,200 @@ function buildSituationalAdvice(analysis, tone, focus, message) {
     // If they're venting and focus is emotional, don't give advice yet
     if (focus === 'emotional' && !message.includes('?') && analysis.emotions.length > 0) {
         const followUps = {
-            gentle: "I'm here to listen. Is there more you need to get out, or would it help to think through next steps?",
-            balanced: "I hear you. Do you want to keep venting, or are you ready to figure out what to do?",
-            direct: "Got it. Needed to get that out? Or are you ready to talk about what to do?"
+            gentle: [
+                "I'm here to listen. Is there more you need to get out, or would it help to think through next steps?",
+                "Take all the time you need. What else is on your heart?",
+                "I'm not going anywhere. What else do you want to share?",
+                "That's a lot. Is there more, or do you want to sit with this for a moment?",
+                "I hear you. Keep going if you need to — I'm here."
+            ],
+            balanced: [
+                "I hear you. Do you want to keep venting, or are you ready to figure out what to do?",
+                "Got it. There's more to this, isn't there? What else?",
+                "I'm following. What's the part that's bothering you most?",
+                "Okay. What else happened? Or is that the main thing?",
+                "I hear you. What do you need right now — more venting or some advice?"
+            ],
+            direct: [
+                "Got it. Needed to get that out? Or are you ready to talk about what to do?",
+                "Alright. What else? Or is that the whole situation?",
+                "I'm listening. What's the main thing you need to figure out here?",
+                "Okay. Is there more, or are you ready to get into what to do about it?",
+                "I got the picture. What do you want to do about this?"
+            ]
         };
-        return followUps[tone];
+        return ResponseVariety.pick(followUps[tone], 'followup_emotional');
     }
 
     // Conflict-based advice
     if (hasConflict) {
         if (personType === 'romantic') {
             const advice = {
-                gentle: "When things cool down, it might help to revisit this conversation — but from a place of curiosity instead of defense. Something like 'I want to understand what you were feeling when...'",
-                balanced: "Once things settle, try having the conversation again but slower. Focus on understanding each other, not winning. 'I felt X when Y happened' works better than accusations.",
-                direct: "Look — fighting happens. But how you repair matters. When you're both calm, address what actually triggered this. Don't let it fester."
+                gentle: [
+                    "When things cool down, it might help to revisit this conversation — but from a place of curiosity instead of defense.",
+                    "Give it some time to settle. Then you can approach it differently — with less heat and more understanding.",
+                    "After a fight, it helps to come back with 'I want to understand' rather than 'Here's why I was right.'",
+                    "Once the dust settles, maybe try asking what they were feeling instead of defending your side first."
+                ],
+                balanced: [
+                    "Once things settle, try having the conversation again but slower. Focus on understanding, not winning.",
+                    "Fighting happens. What matters is how you come back together. What do you think triggered this?",
+                    "When you're both calm, revisit it. 'I felt X when Y happened' works better than accusations.",
+                    "The fight already happened. Now the question is: how do you repair it?"
+                ],
+                direct: [
+                    "Look — fighting happens. But how you repair matters. When you're both calm, address what actually triggered this.",
+                    "Don't let this fester. When things cool down, have the real conversation.",
+                    "Okay, the fight happened. What's the actual issue here? And what do you want to do about it?",
+                    "Real talk: is this fight about what you were fighting about, or is there something deeper?"
+                ]
             };
-            return advice[tone];
+            return ResponseVariety.pick(advice[tone], 'advice_romantic_conflict');
         }
         if (personType === 'family') {
             const advice = {
-                gentle: "Family conflicts hit different because the history runs deep. Sometimes the argument isn't about what it seems — it's about older patterns. Can you see any of those at play here?",
-                balanced: "Family stuff is layered. This fight might be connected to older dynamics. The question is: what boundary do you need here, regardless of whether they understand it?",
-                direct: "Family drama usually isn't about the thing you're fighting about. What's the real issue underneath? And what boundary do you need to set?"
+                gentle: [
+                    "Family conflicts hit different because the history runs deep. Can you see any old patterns at play here?",
+                    "Family stuff carries so much history. This might not even be about what it seems on the surface.",
+                    "With family, there's always layers. What do you think is really going on underneath this?",
+                    "Family dynamics are complicated. What boundary might help you here, even if they don't understand it?"
+                ],
+                balanced: [
+                    "Family stuff is layered. This fight might be connected to older dynamics. What boundary do you need?",
+                    "With family, the fight is rarely just about the fight. What's the real issue here?",
+                    "Family relationships have history. Is this a new issue or an old pattern repeating?",
+                    "What do you need from this situation? Sometimes with family, you can't change them, but you can change what you accept."
+                ],
+                direct: [
+                    "Family drama usually isn't about the thing you're fighting about. What's the real issue?",
+                    "What boundary do you need to set here? Regardless of whether they like it.",
+                    "Here's the thing with family — you can't control them. What can you control?",
+                    "Real talk: is this worth the energy? And if so, what's the move?"
+                ]
             };
-            return advice[tone];
+            return ResponseVariety.pick(advice[tone], 'advice_family_conflict');
         }
         // Default conflict advice
         const advice = {
-            gentle: "Give yourself permission to step back before deciding how to respond. Sometimes space creates clarity.",
-            balanced: "Before you respond, get clear on what outcome you actually want. That should guide what you say.",
-            direct: "What do you want to happen here? Figure that out first, then we can work backwards on what to do."
+            gentle: [
+                "Give yourself permission to step back before deciding how to respond. Sometimes space creates clarity.",
+                "You don't have to figure this out right now. Let it breathe a little.",
+                "What would happen if you took some space before responding?",
+                "Sometimes the best thing is to pause and let things settle before you decide what to do."
+            ],
+            balanced: [
+                "Before you respond, get clear on what outcome you actually want. That should guide what you say.",
+                "What's your goal here? Once you know that, we can figure out how to get there.",
+                "Step back for a sec — what do you actually want to happen?",
+                "Think about the outcome you want. That should shape your next move."
+            ],
+            direct: [
+                "What do you want to happen here? Figure that out first, then we can work backwards.",
+                "What's the actual goal? Let's start there.",
+                "Real question: what outcome are you hoping for?",
+                "Before you do anything — what do you actually want from this?"
+            ]
         };
-        return advice[tone];
+        return ResponseVariety.pick(advice[tone], 'advice_conflict_default');
     }
 
     // Ending/loss-based advice
     if (hasEnding) {
         const advice = {
-            gentle: "Endings are hard, even when they might be right. For now, focus on getting through each day. The clarity will come. What's one small thing you can do to take care of yourself today?",
-            balanced: "This is a transition. It's going to hurt for a while, and that's normal. Focus on what you can control — your routines, your support system, your next steps.",
-            direct: "It's over. That's painful but also potentially freeing. What do you need right now — to grieve, to move forward, or just to sit with it for a bit?"
+            gentle: [
+                "Endings are hard, even when they might be right. What's one small thing you can do to take care of yourself today?",
+                "This is a lot to process. For now, just focus on getting through each day. The clarity will come.",
+                "Loss takes time to process. Be gentle with yourself right now.",
+                "You don't have to have it all figured out yet. Just take it one day at a time."
+            ],
+            balanced: [
+                "This is a transition. It's going to hurt for a while, and that's normal. Focus on what you can control.",
+                "Endings suck, but they also create space for something new. What do you need right now?",
+                "It's over, and that's hard. Focus on your routines and your support system.",
+                "This chapter is closing. How are you holding up?"
+            ],
+            direct: [
+                "It's over. That's painful but also potentially freeing. What do you need right now?",
+                "Endings are hard but sometimes necessary. What's helping you get through this?",
+                "It ended. Now what? What do you need — to grieve, to move on, or to just sit with it?",
+                "Okay, it's done. What's the one thing you need to focus on right now?"
+            ]
         };
-        return advice[tone];
+        return ResponseVariety.pick(advice[tone], 'advice_ending');
     }
 
     // Perspective-focused advice
     if (focus === 'perspective') {
         const advice = {
-            gentle: "Sometimes stepping back helps. If a friend told you this exact story, what would you say to them? We're often wiser for others than ourselves.",
-            balanced: "Let's zoom out. What would this situation look like from the outside? And what might you be missing from their perspective?",
-            direct: "Okay, different angle: what's the most generous interpretation of their behavior? I'm not saying it's correct, but what might they say if they were defending themselves?"
+            gentle: [
+                "Sometimes stepping back helps. If a friend told you this story, what would you say to them?",
+                "What do you think they were feeling in that moment? Not to excuse it, but to understand.",
+                "If you zoom out, what do you see? We're often wiser from a distance.",
+                "What might someone outside this situation notice that you're too close to see?"
+            ],
+            balanced: [
+                "Let's zoom out. What would this look like from the outside?",
+                "What might you be missing from their perspective? Not saying they're right, just curious.",
+                "Flip it around — what would they say if they were telling this story?",
+                "Different angle: what's the most generous interpretation of their behavior?"
+            ],
+            direct: [
+                "Okay, different angle: what's their side of this? Even if it's wrong, what might they think?",
+                "Real talk: is there anything you might have contributed to this situation?",
+                "What would they say if they were defending themselves right now?",
+                "Let's be honest — is there another way to see this?"
+            ]
         };
-        return advice[tone];
+        return ResponseVariety.pick(advice[tone], 'advice_perspective');
     }
 
     // Practical-focused advice
     if (focus === 'practical') {
         const advice = {
-            gentle: "When you're ready, one small step might help: write out what you want to happen, then we can work backwards from there.",
-            balanced: "Let's get practical. What's the ONE thing you could do this week that would move this forward — even a little?",
-            direct: "Action time. What's the move here? What can you actually do about this situation?"
+            gentle: [
+                "When you're ready, one small step might help. What feels doable right now?",
+                "Let's think practically — what's one thing you could do this week to move forward?",
+                "Sometimes writing it out helps. What do you actually want to happen?",
+                "What's the smallest possible step you could take? Start there."
+            ],
+            balanced: [
+                "Let's get practical. What's the ONE thing you could do this week to move this forward?",
+                "Okay, action mode. What are your actual options here?",
+                "What can you control in this situation? Let's focus there.",
+                "If you had to do something about this today, what would it be?"
+            ],
+            direct: [
+                "Action time. What's the move here?",
+                "What can you actually do about this? Let's focus on that.",
+                "Enough processing — what's the next step?",
+                "What's in your control? That's where we focus."
+            ]
         };
-        return advice[tone];
+        return ResponseVariety.pick(advice[tone], 'advice_practical');
     }
 
     // Default follow-up
     const followUps = {
-        gentle: "Thank you for sharing all of that. What feels like the most important thing to focus on right now?",
-        balanced: "I'm following. What do you think you need most right now — to process this more, or to figure out next steps?",
-        direct: "Okay, I've got the picture. What do you want to do about it?"
+        gentle: [
+            "Thank you for sharing all of that. What feels most important to focus on right now?",
+            "I appreciate you opening up. What part of this weighs on you the most?",
+            "That's a lot. What do you need from me right now?",
+            "I'm here. What's the thing you most want to talk through?"
+        ],
+        balanced: [
+            "I'm following. What do you think you need most right now?",
+            "Okay, I hear you. What's the main thing you want to figure out?",
+            "Got it. What's your gut telling you about all this?",
+            "What's the part that's bothering you most? Let's start there."
+        ],
+        direct: [
+            "Okay, I've got the picture. What do you want to do about it?",
+            "Got it. So what's the move?",
+            "Alright. What do you need — advice, a reality check, or just to vent more?",
+            "I hear you. What's the actual question you're trying to answer?"
+        ]
     };
-    return followUps[tone];
+    return ResponseVariety.pick(followUps[tone], 'followup_default');
 }
 
 // ============================================
