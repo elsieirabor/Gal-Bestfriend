@@ -1021,22 +1021,22 @@ async function initializeChat() {
         }
     }
 
-    // Clear previous messages for fresh chat but keep empty state
+    // Clear previous messages for fresh chat
     const emptyState = document.getElementById('emptyState');
     messagesContainer.innerHTML = '';
     AppState.conversation = [];
 
-    // Re-add empty state to container
+    // Keep empty state in DOM but hidden (we're about to send a greeting)
     if (emptyState) {
         messagesContainer.appendChild(emptyState);
-        emptyState.classList.remove('hidden');
+        emptyState.classList.add('hidden');
     }
 
     // Check if returning user
     const isReturningUser = checkReturningUser();
     const toneKey = getToneKey(AppState.user.toneLevel);
 
-    // Send welcome message
+    // Send welcome message (Gia greets first, so no empty state needed)
     setTimeout(() => {
         let greeting;
 
@@ -1129,10 +1129,10 @@ async function startNewConversation() {
     const emptyState = document.getElementById('emptyState');
     messagesContainer.innerHTML = '';
 
-    // Re-add and show empty state
+    // Re-add empty state but keep hidden (greeting will be sent immediately)
     if (emptyState) {
         messagesContainer.appendChild(emptyState);
-        emptyState.classList.remove('hidden');
+        emptyState.classList.add('hidden');
     }
 
     // Close any open pickers/panels
@@ -1320,6 +1320,9 @@ function addAIMessage(text, showValidation = false) {
     const messagesContainer = document.getElementById('chatMessages');
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const messageId = `msg-${Date.now()}`;
+
+    // Hide empty state when adding messages
+    hideEmptyState();
 
     // Show typing indicator
     showTypingIndicator();
@@ -1760,6 +1763,9 @@ function addAIMessageDirect(text) {
     const messagesContainer = document.getElementById('chatMessages');
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const messageId = `msg-${Date.now()}`;
+
+    // Hide empty state when adding messages
+    hideEmptyState();
 
     const messageEl = document.createElement('div');
     messageEl.className = 'message ai';
