@@ -173,35 +173,6 @@ async function signInWithEmail(email, password) {
     }
 }
 
-// Sign in with Google
-async function signInWithGoogle() {
-    const supabase = window.supabaseClient;
-    if (!supabase) {
-        showAuthError('Connection error. Please refresh the page and try again.');
-        return { success: false };
-    }
-    showAuthLoading(true);
-    hideAuthError();
-
-    try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin
-            }
-        });
-
-        if (error) throw error;
-
-        return { success: true, data };
-    } catch (error) {
-        console.error('Google sign in error:', error);
-        showAuthError(error.message);
-        showAuthLoading(false);
-        return { success: false, error };
-    }
-}
-
 // Reset password
 async function resetPassword(email) {
     const supabase = window.supabaseClient;
@@ -442,12 +413,6 @@ function initAuthForms() {
         });
     }
 
-    // Google sign in button
-    const googleBtn = document.getElementById('googleSignInBtn');
-    if (googleBtn) {
-        googleBtn.addEventListener('click', signInWithGoogle);
-    }
-
     // Forgot password link
     const forgotLink = document.getElementById('forgotPasswordLink');
     if (forgotLink) {
@@ -540,7 +505,6 @@ window.authModule = {
     initAuth,
     signUpWithEmail,
     signInWithEmail,
-    signInWithGoogle,
     resetPassword,
     signOut,
     getCurrentUser,
